@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Azure Functions artifacts
+**/bin
+**/obj
+**/appsettings.json
+**/local.settings.json
+
+# macOS operating system file
+.DS_Store
+._DS_Store
+__MACOSX/
+
+# Ignore developer personal files
+.devcontainer/.credentials.env
+.vscode/settings.json

@@ -1,0 +1,9 @@
+flake8
+mypy
+pylint
+pyright
+yamllint
+yapf
+grpcio==1.51.1
+grpcio-tools==1.51.1
+snowflake-cli-labs==2.3.1

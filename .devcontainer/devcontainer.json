@@ -1,0 +1,81 @@
+{
+    "name": "Snowflake",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/app,type=bind",
+	"workspaceFolder": "/workspaces/app",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"context": ".."
+	},
+	"forwardPorts": [
+		7071
+	],
+	"mounts": [
+		"type=bind,source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vscode/.ssh,readonly"
+	],
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"azure-cli": "latest"
+	},
+    "runArgs": [
+        "--env-file",
+        ".devcontainer/.credentials.env"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-vscode-remote.remote-containers",
+                "sanaajani.taskrunnercode",
+                "ms-python.vscode-pylance",
+                "ms-python.pylint",
+                "ms-python.mypy-type-checker",
+                "ms-python.flake8"
+            ],
+            "settings": {
+                "container.type": "app-python",
+                "remote.autoForwardPortsSource": "process",
+                "python.pythonPath": "/usr/local/bin/python",
+                "python.terminal.activateEnvironment": false,
+                "python.createEnvironment.contentButton": "hide",
+                "python.analysis.typeCheckingMode": "strict",
+                "python.analysis.importFormat": "absolute",
+                "python.analysis.logLevel": "Trace",
+                "python.languageServer": "Pylance",
+                "python.testing.pytestArgs": [
+                    "tests"
+                ],
+                "files.trimTrailingWhitespace": true,
+                "files.trimFinalNewlines": true,
+                "files.insertFinalNewline": true,
+                "files.eol": "\n",
+                "files.exclude": {
+                    "**/__pycache__": true,
+                    "**/.mypy_cache": true,
+                    "**/.pytest_cache": true,
+                    "**/.python_packages": true
+                },
+                "editor.formatOnSaveMode": "modifications",
+                "editor.formatOnSave": true,
+                "editor.formatOnType": false,
+                "mypy-type-checker.args": [],
+                "python.dependencyManager": "pip",
+                "python.pip.extraIndexUrl": null,
+                "python.testing.coverageEnabled": true,
+                "python.testing.pytestEnabled": true,
+                "python.testing.unittestEnabled": false,
+                "_editor.defaultFormatter": "ms-python.autopep8",
+                "__editor.defaultFormatter": "ms-python.black-formatter",
+                "editor.defaultFormatter": "eeyore.yapf",
+                "git.preCommitEnabled": false,
+                "debug.internalConsoleOptions": "neverOpen",
+                "task.autoDetect": "off"
+            }
+        }
+    },
+    "remoteEnv": {
+        "SF_AUTH_SOCKET_ADDR": "localhost", //fix snowflake externalbrowser loopback address
+        "SF_AUTH_SOCKET_REUSEPORT": "true" //try to reuse port
+	},
+    "remoteUser": "vscode",
+    "postCreateCommand": "sudo chmod +x $WORKSPACE_PATH/.devcontainer/install.sh && $WORKSPACE_PATH/.devcontainer/install.sh"
+}
