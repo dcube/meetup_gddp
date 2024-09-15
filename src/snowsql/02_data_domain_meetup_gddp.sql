@@ -39,9 +39,3 @@ ALTER GIT REPOSITORY &{data_domain}.PUBLIC.GIT_REPO FETCH;
 ------------------------------------------------------------------------------
 !define data_product=TPCH_SF100
 CREATE SCHEMA IF NOT EXISTS &{data_domain}.&{data_product};
-
--- show branches
-show git branches in git_snw_frosty_91;
-
--- browse the git repo as a stage
-ls @git_snw_frosty_91/branches/main;
