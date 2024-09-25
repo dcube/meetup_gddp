@@ -1,7 +1,6 @@
-!define data_product=UTILS
-
 ------------------------------------------------------------------------------
--- Create the database for the domain
+-- Create the data product &{data_domain}.UTILS
 ------------------------------------------------------------------------------
 USE ROLE SYSADMIN;
-CREATE SCHEMA IF NOT EXISTS &{data_domain}.&{data_product};
+
+CREATE SCHEMA IF NOT EXISTS &{data_domain}.UTILS;

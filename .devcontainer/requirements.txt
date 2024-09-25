@@ -1,1 +1,2 @@
 snowflake-snowpark-python==1.13
+snowflake-cli-labs==2.6.1
