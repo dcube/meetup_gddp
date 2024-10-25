@@ -2,7 +2,7 @@
 -- manage external volume on S3 for the data domain
 ------------------------------------------------------------------------------
 USE ROLE ACCOUNTADMIN;
-CREATE OR REPLACE EXTERNAL VOLUME &{data_domain}_S3_LAKEHOUSE
+CREATE EXTERNAL VOLUME IF NOT EXISTS &{data_domain}_S3_LAKEHOUSE
    STORAGE_LOCATIONS =
       (
          (

@@ -1,3 +1,4 @@
+/*
 ------------------------------------------------------------------------------
 -- Stored proc LOAD_RAW_DATA_CSV
 ------------------------------------------------------------------------------
@@ -11,3 +12,4 @@ CREATE PROCEDURE IF NOT EXISTS &{data_domain}.UTILS.LOAD_RAW_DATA_CSV(config var
     packages=('snowflake-snowpark-python')
     imports=('@&{data_domain}.UTILS.GIT_REPO/branches/"feature/setting_up_project"/src/snowpark/data_loader/raw_data_csv_loader.py')
     handler='raw_data_csv_loader.load_raw_data';
+*/

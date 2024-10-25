@@ -3,5 +3,4 @@ USE WAREHOUSE LOAD;
 USE SCHEMA &{data_domain}.&{data_product}
 
 -- execute the dag to load raw data
-EXECUTE TASK LOAD_RAW_DATA_ENTRYPOINT;
-
+EXECUTE TASK RUN_TPCH_QUERIES_ENTRYPOINT;

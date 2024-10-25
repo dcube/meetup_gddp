@@ -1,22 +1,4 @@
 {
   "version": "2.0.0",
-  "tasks": [
-		{
-			"type": "shell",
-			"label": "start function app",
-			"command": "cd ${workspaceFolder}/src/functionapp && func host start --python --inspect=7071",
-			"problemMatcher": {
-				"owner": "python",
-				"fileLocation": ["relative", "${workspaceFolder}"],
-				"pattern": {
-					"regexp": "^(.*):\\s*(\\d+):\\s*(\\d+)\\s*-\\s*(error|warning|info)\\s*(.*)$",
-					"file": 1,
-					"line": 2,
-					"column": 3,
-					"severity": 4,
-					"message": 5
-				}
-			}
-		}
-	]
+  "tasks": []
 }

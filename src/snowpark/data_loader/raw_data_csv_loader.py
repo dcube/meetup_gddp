@@ -20,7 +20,7 @@ class RawDataCSVLoader():
         "force": (bool, None)
     }
 
-    def __init__(self, session: Session, config: Dict[str, Any]) -> None:
+    def __init__(self, session: Session, format_optionsconfig: Dict[str, Any]) -> None:
         """default class constructor"""
         # Ensure the config dictionary has the correct structure and types
         self.__validate_config(config)

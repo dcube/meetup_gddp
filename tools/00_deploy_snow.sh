@@ -11,5 +11,6 @@ cat `find . -iname '*.sql' | sort` | snow sql \
   --variable git_repo_uri=$GIT_REPO_URI \
   --variable data_domain=MEETUP_GDDP \
   --variable owners_grants_future_all=ALL \
+  --variable branch=feature/setting_up_project \
   --stdin \
   --verbose

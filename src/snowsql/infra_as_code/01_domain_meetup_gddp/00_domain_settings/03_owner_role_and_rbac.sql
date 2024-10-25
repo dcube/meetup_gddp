@@ -39,4 +39,5 @@ GRANT OWNERSHIP ON &{owners_grants_future_all} TASKS IN DATABASE &{data_domain} 
 GRANT OWNERSHIP ON &{owners_grants_future_all} FILE FORMATS IN DATABASE &{data_domain} TO ROLE &{data_domain}_OWN;
 GRANT OWNERSHIP ON &{owners_grants_future_all} GIT REPOSITORIES IN DATABASE &{data_domain} TO ROLE &{data_domain}_OWN;
 GRANT OWNERSHIP ON &{owners_grants_future_all} STAGES IN DATABASE &{data_domain} TO ROLE &{data_domain}_OWN;
+GRANT OWNERSHIP ON &{owners_grants_future_all} STAGES IN DATABASE &{data_domain} TO ROLE &{data_domain}_OWN;
 USE ROLE SYSADMIN;
