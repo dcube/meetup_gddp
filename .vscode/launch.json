@@ -3,7 +3,7 @@
   "configurations": [
       {
         "name": "debug streamlit app",
-        "type": "python",
+        "type": "debugpy",
         "request": "launch",
         "module": "streamlit",
         "args": [
@@ -11,6 +11,14 @@
           "home.py"
         ],
         "cwd": "${workspaceFolder}/src/streamlit/snow_observer"
+      },
+      {
+        "name": "debug deployer",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "deploy",
+        "args": [],
+        "cwd": "${workspaceFolder}/src/"
       }
   ]
   }

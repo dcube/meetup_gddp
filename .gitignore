@@ -35,3 +35,7 @@ __MACOSX/
 # Ignore developer personal files
 .devcontainer/.credentials.env
 .vscode/settings.json
+
+# logs
+**/logs
+**/.log

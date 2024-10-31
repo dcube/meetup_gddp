@@ -11,6 +11,6 @@ echo -e "${BLUE}#############################################################${E
 echo -e "\n${GREEN}> Configure Snow CLI connexion.${ENDCOLOR}\n"
 
 # export git config to bashrc
-snow connection add --connection-name default --account $SNOWFLAKE_ACCOUNT --user $SNOWFLAKE_USER
+snow connection add --connection-name default --account $SNOWFLAKE_ACCOUNT --user $SNOWFLAKE_USER --password $SNOWFLAKE_PASSWORD
 
 echo -e "\nDone\n"

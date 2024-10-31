@@ -1,0 +1,151 @@
+data_product:
+  database: "MEETUP_GDDP_TEST"
+  schema:
+    name: "TPCH_SF100_LAKEHOUSE"
+    properties:
+      catalog: "SNOWFLAKE"
+      external_volume: "MEETUP_GDDP_S3_LAKEHOUSE"
+      data_retention_time_in_days: 1
+  objects:
+    - ICEBERG TABLE:
+      name: "CUSTOMER"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/customer"
+        # write_mode: "truncate"
+        tbl_cols: "(
+          C_CUSTKEY     BIGINT,
+          C_NAME        VARCHAR,
+          C_ADDRESS     VARCHAR,
+          C_NATIONKEY   BIGINT,
+          C_PHONE       VARCHAR,
+          C_ACCTBAL     NUMBER(15, 2),
+          C_MKTSEGMENT  VARCHAR,
+          C_COMMENT     VARCHAR
+          )"
+        base_location: "CUSTOMER"
+
+    - ICEBERG TABLE:
+      name: "LINEITEM"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/lineitem"
+        # write_mode: "truncate"
+        tbl_cols: "(
+          L_ORDERKEY        BIGINT,
+          L_PARTKEY         BIGINT,
+          L_SUPPKEY         BIGINT,
+          L_LINENUMBER      BIGINT,
+          L_QUANTITY        NUMBER(15, 2),
+          L_EXTENDEDPRICE   NUMBER(15, 2),
+          L_DISCOUNT        NUMBER(15, 2),
+          L_TAX             NUMBER(15, 2),
+          L_RETURNFLAG      VARCHAR,
+          L_LINESTATUS      VARCHAR,
+          L_SHIPDATE        DATE,
+          L_COMMITDATE      DATE,
+          L_RECEIPTDATE     DATE,
+          L_SHIPINSTRUCT    VARCHAR,
+          L_SHIPMODE        VARCHAR,
+          L_COMMENT         VARCHAR
+          )"
+        base_location: "LINEITEM"
+        cluster by: ["L_SHIPDATE"]
+
+    - ICEBERG TABLE:
+      name: "NATION"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/nation"
+        # write_mode: "truncate"
+        base_location: "NATION"
+        tbl_cols: "(
+            N_NATIONKEY BIGINT,
+            N_NAME      VARCHAR,
+            N_REGIONKEY BIGINT,
+            N_COMMENT   VARCHAR
+          )"
+
+    - ICEBERG TABLE:
+      name: "ORDERS"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/orders"
+        # write_mode: "truncate"
+        tbl_cols: "(
+          O_ORDERKEY        BIGINT,
+          O_CUSTKEY         BIGINT,
+          O_ORDERSTATUS     VARCHAR,
+          O_TOTALPRICE      NUMBER(15, 2),
+          O_ORDERDATE       DATE,
+          O_ORDERPRIORITY   VARCHAR,
+          O_CLERK           VARCHAR,
+          O_SHIPPRIORITY    BIGINT,
+          O_COMMENT         VARCHAR
+          )"
+        base_location: "ORDERS"
+        cluster by: ["O_ORDERDATE"]
+
+    - ICEBERG TABLE:
+      name: "PART"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/part"
+        # write_mode: "truncate"
+        tbl_cols: "(
+          P_PARTKEY     BIGINT,
+          P_NAME        VARCHAR,
+          P_MFGR        VARCHAR,
+          P_BRAND       VARCHAR,
+          P_TYPE        VARCHAR,
+          P_SIZE        BIGINT,
+          P_CONTAINER   VARCHAR,
+          P_RETAILPRICE NUMBER(15, 2),
+          P_COMMENT     VARCHAR
+          )"
+
+    - ICEBERG TABLE:
+      name: "PARTSUPP"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/partsupp"
+        # write_mode: "truncate"
+        tbl_cols: "(
+          PS_PARTKEY BIGINT,
+          PS_SUPPKEY BIGINT,
+          PS_AVAILQTY BIGINT,
+          PS_SUPPLYCOST NUMBER(15, 2),
+          PS_COMMENT VARCHAR
+          )"
+        base_location: "PARTSUPP"
+        cluster by: ["PS_SUPPKEY"]
+
+    - ICEBERG TABLE:
+      name: "REGION"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/region"
+        # write_mode: "truncate"
+        tbl_cols: "(
+          R_REGIONKEY BIGINT,
+          R_NAME      VARCHAR,
+          R_COMMENT   VARCHAR
+          )"
+        base_location: "REGION"
+
+    - ICEBERG TABLE:
+      name: "SUPPLIER"
+      properties:
+        # input_file_format: "MEETUP_GDDP.UTILS.CSV_FMT1"
+        # input_stage_path: "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/supplier"
+        # write_mode: "truncate"
+        tbl_cols: "(
+          S_SUPPKEY   BIGINT,
+          S_NAME      VARCHAR,
+          S_ADDRESS   VARCHAR,
+          S_NATIONKEY BIGINT,
+          S_PHONE     VARCHAR,
+          S_ACCTBAL   NUMBER(15, 2),
+          S_COMMENT   VARCHAR
+          )"
+        base_location: "SUPPLIER"
