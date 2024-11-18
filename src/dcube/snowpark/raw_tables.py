@@ -10,8 +10,7 @@ Last Updated: 16/09/2024
 from typing import Any, Dict, List
 from enum import Enum
 import re
-from snowflake.snowpark import Session
-from snowflake.snowpark.row import Row
+from snowflake.snowpark import Session, DataFrame
 from snowflake.snowpark.exceptions import SnowparkSQLException
 from snowflake.snowpark.functions import lit, listagg, concat, col
 
@@ -128,7 +127,7 @@ class RawTable:
                       match_by_column_name: str = "case_insensitive",
                       force: bool = False,
                       **inference_options: Any
-                      ) -> List[Row]:
+                      ) -> DataFrame:
         """Read csv and load into table use fully qualified name
         for table_name and file_format"""
 
@@ -151,37 +150,21 @@ class RawTable:
             self._session.sql(f"TRUNCATE TABLE {self._name}")
 
         # write to table
-        rows = df.copy_into_table(table_name=self._name,
-                                  match_by_column_name=match_by_column_name,
-                                  force=force)
+        with self._session.query_history(True, True) as qh:
+            _ = df.copy_into_table(table_name=self._name,
+                                   match_by_column_name=match_by_column_name,
+                                   force=force)
 
-        return rows
-
-
-def load_from_csv_old(session: Session, tbl: Dict[str, str | bool]) -> None:
-    """ load table """
-    try:
-        raw_table = RawTable(
-            session=session,
-            name=str(tbl["table_name"])
-            )
-
-        raw_table.load_from_csv(
-            location=str(tbl.get("stage_path")),
-            file_format=str(tbl.get("file_format")),
-            mode=WriteMode(str(tbl.get("mode")).lower()),
-            force=bool(tbl.get("force"))
-            )
-
-        print(f"load table {str(tbl['table_name'])} succeeded")
-
-    except Exception as err:
-        print(f"load table {str(tbl['table_name'])} failed with error {err}")
+        return self._session.sql(f"""
+                                 select *
+                                 from result_scan('{qh.queries[0].query_id}')
+                                 """
+                                 )
 
 
 def load_from_csv(session: Session,
-                  tbl_config: Dict[str, str | bool]) -> List[Row]:
-    """ load table """
+                  tbl_config: Dict[str, str | bool]) -> DataFrame:
+    """ load table from csv  """
     try:
         raw_table = RawTable(
             session=session,
@@ -201,3 +184,16 @@ def load_from_csv(session: Session,
         # print(f"load table {str(tbl_config['table_name'])} failed with error {err}")
         # dg: DataFrame = None
         raise err
+
+
+if __name__ == "__main__":
+    _session: Session = Session.builder.getOrCreate()
+    _session.use_database("MEETUP_GDDP")
+    load_from_csv(_session, {
+        "table_name": "MEETUP_GDDP.TPCH_SF100.REGIOB",
+        "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/region/",
+        "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1",
+        "mode": "truncate",
+        "force": True
+        }
+        )
