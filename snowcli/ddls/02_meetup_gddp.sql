@@ -30,7 +30,7 @@ CREATE GIT REPOSITORY IF NOT EXISTS &{DOMAIN}.UTILS.GIT_REPO
   ORIGIN = '&{GIT_REPO_URI}';
 
 -- fetch the git repo to update it
-ALTER GIT REPOSITORY &{DOMAIN}.UTILS.GIT_REPO FETCH
+ALTER GIT REPOSITORY &{DOMAIN}.UTILS.GIT_REPO FETCH;
 
 -- create the generic stored procedure to load raw data from csv
 CREATE OR REPLACE PROCEDURE &{DOMAIN}.UTILS.LOAD_FROM_CSV(tbl_config variant)
@@ -48,7 +48,8 @@ CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
 CREATE SCHEMA IF NOT EXISTS TPCH_SF100_ICEBERG;
 
 -- Deploy tpch tables
--- EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}
+EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowcli/tpch_ddl_templates/tables.sql;
 
 -- Deploy tpch dags
--- EXECUTE IMMEDIATE FROM
+EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowcli/tpch_ddl_templates/dag_load_parallel.sql;
+EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowcli/tpch_ddl_templates/dag_load_sequentially.sql;

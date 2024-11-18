@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------
 -- create tables for tpch
 ------------------------------------------------------------------------------
-{% set domain = "MEETUP_GDDP"}
+{% set domain = "MEETUP_GDDP" %}
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
 
 {% for schema in schemas %}

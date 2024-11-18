@@ -6,6 +6,7 @@ cat `find $WORKSPACE_PATH/snowcli/ddls -iname '*.sql' | sort` | \
   snow sql \
     --account $SNOWFLAKE_ACCOUNT \
     --user $SNOWFLAKE_USER \
+    --warehouse MANAGE \
     --stdin \
     --variable "DOMAIN=MEETUP_GDDP" \
     --variable "S3_LANDING_ROLE_ARN=$S3_LANDING_ROLE_ARN" \
