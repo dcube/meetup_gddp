@@ -10,7 +10,7 @@ import json
 import argparse
 from concurrent.futures import ThreadPoolExecutor
 from snowflake.snowpark import Session
-from src.dcube.snowpark.raw_tables import load_from_csv
+from snowpark.dcube.raw_tables import load_from_csv
 
 
 if __name__ == "__main__":

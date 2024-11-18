@@ -10,7 +10,7 @@
           "run",
           "home.py"
         ],
-        "cwd": "${workspaceFolder}/src/app"
+        "cwd": "${workspaceFolder}/streamlit_app"
       },
       {
         "name": "load tpch_sf100 parallel, large",
@@ -22,8 +22,8 @@
           "--size", "LARGE",
           "--database", "meetup_gddp",
           "--mode", "parallel",
-          "--tables_definition", "${workspaceFolder}/tools/snowpark/tpch_sf100.json"],
-        "cwd": "${workspaceFolder}/tools/snowpark/"
+          "--tables_definition", "${workspaceFolder}/test/snowpark/tpch_sf100.json"],
+        "cwd": "${workspaceFolder}/test/snowpark/"
       },
       {
         "name": "load tpch_sf100 parallel, medium",
@@ -35,8 +35,8 @@
           "--size", "medium",
           "--database", "meetup_gddp",
           "--mode", "parallel",
-          "--tables_definition", "${workspaceFolder}/tools/snowpark/tpch_sf100.json"],
-        "cwd": "${workspaceFolder}/tools/snowpark/"
+          "--tables_definition", "${workspaceFolder}/test/snowpark/tpch_sf100.json"],
+        "cwd": "${workspaceFolder}/test/snowpark/"
       },
       {
         "name": "load tpch_sf100 sequential, large",
@@ -48,9 +48,8 @@
           "--size", "LARGE",
           "--database", "meetup_gddp",
           "--mode", "sequential",
-          "--tables_definition", "${workspaceFolder}/tools/snowpark/tpch_sf100.json"],
-        "cwd": "${workspaceFolder}/tools/snowpark/"
+          "--tables_definition", "${workspaceFolder}/test/snowpark/tpch_sf100.json"],
+        "cwd": "${workspaceFolder}/test/snowpark/"
       }
-
   ]
   }
