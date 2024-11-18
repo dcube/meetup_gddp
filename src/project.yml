@@ -1,4 +1,0 @@
-log_path: "logs"
-config_infra_path: "config/infra"
-config_data_product_path: "config/data_products"
-log_level: "INFO"

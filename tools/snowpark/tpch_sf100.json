@@ -1,0 +1,10 @@
+[
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.CUSTOMER", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/customer/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true},
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.LINEITEM", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/lineitem/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true},
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.NATION", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/nation/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true},
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.ORDERS", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/orders/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true},
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.PART", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/part/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true},
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.PARTSUPP", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/partsupp/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true},
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.REGION", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/region/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true},
+    { "table_name": "MEETUP_GDDP.TPCH_SF100.SUPPLIER", "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/supplier/", "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1", "mode": "truncate", "force": true}
+]

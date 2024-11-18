@@ -10,7 +10,7 @@ WORKDIR $WORKSPACE_FOLDER
 # Define en variables
 # -----------------------------------------------------------------------------
 ENV WORKSPACE_PATH=$WORKSPACE_FOLDER
-ENV PYTHONPATH="$WORKSPACE_PATH/src"
+ENV PYTHONPATH="$WORKSPACE_PATH/src";"$WORKSPACE_PATH/src/streamlit/snow_observer/modules"
 # Prevent interactive popups when initializing debian.
 ENV DEBIAN_FRONTEND=noninteractive
 # Preparing vars to install the SnowSQL CLI for the vscode user

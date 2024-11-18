@@ -10,15 +10,34 @@
           "run",
           "home.py"
         ],
-        "cwd": "${workspaceFolder}/src/streamlit/snow_observer"
+        "cwd": "${workspaceFolder}/src/app"
       },
       {
-        "name": "debug deployer",
+        "name": "load tpch_sf100 parallel, large",
         "type": "debugpy",
         "request": "launch",
-        "module": "deploy",
-        "args": [],
-        "cwd": "${workspaceFolder}/src/"
+        "module": "load_from_csv",
+        "args": [
+          "--warehouse", "load",
+          "--size", "LARGE",
+          "--database", "meetup_gddp",
+          "--mode", "parallel",
+          "--tables_definition", "${workspaceFolder}/tools/snowpark/tpch_sf100.json"],
+        "cwd": "${workspaceFolder}/tools/snowpark/"
+      },
+      {
+        "name": "load tpch_sf100 sequential, large",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "load_from_csv",
+        "args": [
+          "--warehouse", "load",
+          "--size", "LARGE",
+          "--database", "meetup_gddp",
+          "--mode", "sequential",
+          "--tables_definition", "${workspaceFolder}/tools/snowpark/tpch_sf100.json"],
+        "cwd": "${workspaceFolder}/tools/snowpark/"
       }
+
   ]
   }
