@@ -155,38 +155,30 @@ class RawTable:
                                    match_by_column_name=match_by_column_name,
                                    force=force)
 
-        return self._session.sql(f"""
-                                 select *
-                                 from
-                                    table(result_scan('{qh.queries[0].query_id}'))
-                                 """
-                                 )
+        return self._session.sql(
+            f"select * from table(result_scan('{qh.queries[0].query_id}'))")
 
 
 def load_from_csv(session: Session,
                   tbl_config: Dict[str, str | bool]) -> DataFrame:
     """ load table from csv  """
-    try:
-        raw_table = RawTable(
-            session=session,
-            name=str(tbl_config["table_name"])
-            )
+    raw_table = RawTable(
+        session=session,
+        name=str(tbl_config["table_name"])
+        )
 
-        df = raw_table.load_from_csv(
-            location=str(tbl_config["stage_path"]),
-            file_format=str(tbl_config["file_format"]),
-            mode=WriteMode(str(tbl_config["mode"]).lower()),
-            force=bool(tbl_config["force"])
-            )
+    df = raw_table.load_from_csv(
+        location=str(tbl_config["stage_path"]),
+        file_format=str(tbl_config["file_format"]),
+        mode=WriteMode(str(tbl_config["mode"]).lower()),
+        force=bool(tbl_config["force"])
+        )
 
-        # print(f"load table {str(tbl_config['table_name'])} succeeded")
-        return df
-    except Exception as err:
-        raise err
+    return df
 
 
-"""
 if __name__ == "__main__":
+    # for local testing
     _session: Session = Session.builder.getOrCreate()
     _session.use_database("MEETUP_GDDP")
     load_from_csv(_session, {
@@ -197,4 +189,3 @@ if __name__ == "__main__":
         "force": True
         }
         )
-"""
