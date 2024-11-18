@@ -7,11 +7,11 @@ Last Updated: 16/09/2024
 # pyright: reportUnknownArgumentType=false
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownMemberType=false
-from typing import Any, Dict
+from typing import Any, Dict, List
 from enum import Enum
 import re
 from snowflake.snowpark import Session
-from snowflake.snowpark.types import Variant as Variant
+from snowflake.snowpark.row import Row
 from snowflake.snowpark.exceptions import SnowparkSQLException
 from snowflake.snowpark.functions import lit, listagg, concat, col
 
@@ -128,7 +128,7 @@ class RawTable:
                       match_by_column_name: str = "case_insensitive",
                       force: bool = False,
                       **inference_options: Any
-                      ) -> None:
+                      ) -> List[Row]:
         """Read csv and load into table use fully qualified name
         for table_name and file_format"""
 
@@ -151,9 +151,11 @@ class RawTable:
             self._session.sql(f"TRUNCATE TABLE {self._name}")
 
         # write to table
-        df.copy_into_table(table_name=self._name,
-                           match_by_column_name=match_by_column_name,
-                           force=force)
+        rows = df.copy_into_table(table_name=self._name,
+                                  match_by_column_name=match_by_column_name,
+                                  force=force)
+
+        return rows
 
 
 def load_from_csv_old(session: Session, tbl: Dict[str, str | bool]) -> None:
@@ -177,7 +179,8 @@ def load_from_csv_old(session: Session, tbl: Dict[str, str | bool]) -> None:
         print(f"load table {str(tbl['table_name'])} failed with error {err}")
 
 
-def load_from_csv(session: Session, tbl_config: Variant) -> None:
+def load_from_csv(session: Session,
+                  tbl_config: Dict[str, str | bool]) -> List[Row]:
     """ load table """
     try:
         raw_table = RawTable(
@@ -185,14 +188,16 @@ def load_from_csv(session: Session, tbl_config: Variant) -> None:
             name=str(tbl_config["table_name"])
             )
 
-        raw_table.load_from_csv(
+        df = raw_table.load_from_csv(
             location=str(tbl_config["stage_path"]),
             file_format=str(tbl_config["file_format"]),
             mode=WriteMode(str(tbl_config["mode"]).lower()),
             force=bool(tbl_config["force"])
             )
 
-        print(f"load table {str(tbl_config['table_name'])} succeeded")
-
+        # print(f"load table {str(tbl_config['table_name'])} succeeded")
+        return df
     except Exception as err:
-        print(f"load table {str(tbl_config['table_name'])} failed with error {err}")
+        # print(f"load table {str(tbl_config['table_name'])} failed with error {err}")
+        # dg: DataFrame = None
+        raise err
