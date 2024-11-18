@@ -14,5 +14,5 @@ cat `find $WORKSPACE_PATH/snowcli/ddls -iname '*.sql' | sort` | \
     --variable "S3_LAKE_BUCKET=$S3_LAKE_BUCKET" \
     --variable "S3_LAKE_EXTERNAL_ID=$S3_LAKE_EXTERNAL_ID" \
     --variable "GIT_REPO_URI=$GIT_REPO_URI" \
-    --variable "GIT_REF=branches/""feature/setting_up_project\""
+    --variable "GIT_REF=branches/\"feature/setting_up_project\""
     #--authenticator externalbrowser

@@ -44,8 +44,8 @@ CREATE OR REPLACE PROCEDURE &{DOMAIN}.UTILS.LOAD_FROM_CSV(tbl_config variant)
 ------------------------------------------------------------------------------
 -- Create the data products &{DOMAIN}.TPCH_SF100 & TPCH_SF100_ICEBERG
 ------------------------------------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS &{DOMAIN}.TPCH_SF100;
-CREATE SCHEMA IF NOT EXISTS &{DOMAIN}.TPCH_SF100_ICEBERG;
+CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
+CREATE SCHEMA IF NOT EXISTS TPCH_SF100_ICEBERG;
 
 -- Deploy tpch tables
 -- EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}

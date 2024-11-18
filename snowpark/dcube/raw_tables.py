@@ -182,7 +182,7 @@ if __name__ == "__main__":
     _session: Session = Session.builder.getOrCreate()
     _session.use_database("MEETUP_GDDP")
     load_from_csv(_session, {
-        "table_name": "MEETUP_GDDP.TPCH_SF100.REGIOB",
+        "table_name": "MEETUP_GDDP.TPCH_SF100.REGION",
         "stage_path": "@MEETUP_GDDP.UTILS.LANDING/tpch-sf100/csv/region/",
         "file_format": "MEETUP_GDDP.UTILS.CSV_FMT1",
         "mode": "truncate",
