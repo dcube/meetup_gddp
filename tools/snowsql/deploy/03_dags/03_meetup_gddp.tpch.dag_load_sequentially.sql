@@ -36,7 +36,7 @@
 
         {% endif %}
         -- Resume child tasks to enable them
-        ALTER TASK IF EXISTS {{ schema | upper }}.{{ task.name }} RESUME;
+        ALTER TASK IF EXISTS {{ schema | upper }}.{{ table | upper }} RESUME;
     {% endfor %}
 
 {% endfor %}
