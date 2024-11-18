@@ -25,7 +25,7 @@
                 MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
                 FORCE = TRUE;
         {% else %}
-            CREATE OR ALTER TASK {{ schema | upper }}.LOAD_SEQUENTIALLY{{ table | upper }}
+            CREATE OR ALTER TASK {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }}
                 WAREHOUSE=LOAD
                 AFTER {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ tables[loop.index0 - 1] | upper }}
                 AS
