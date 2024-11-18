@@ -1,6 +1,7 @@
 ------------------------------------------------------------------------------
 -- create the DAG to ingest data (batch mode) into TPCH_SF100 parallel
 ------------------------------------------------------------------------------
+--!jinja
 
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
 {% set tables = ["REGION", "NATION", "SUPPLIER", "PART", "CUSTOMER", "PARTSUPP", "ORDERS", "LINEITEM"] %}
