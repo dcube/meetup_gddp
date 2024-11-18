@@ -27,7 +27,7 @@
         {% else %}
             CREATE OR ALTER TASK {{ schema | upper }}.LOAD_SEQUENTIALLY{{ table | upper }}
                 WAREHOUSE=LOAD
-                AFTER {{ schema | upper }}.LOAD_SEQUENTIALLY__{{ tables[loop.index0 - 1] | upper }}
+                AFTER {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ tables[loop.index0 - 1] | upper }}
                 AS
                 COPY INTO {{ schema | upper }}.{{ table | upper }}
                 FROM @utils.landing/tpch-sf100/csv/{{ table | lower }}/
