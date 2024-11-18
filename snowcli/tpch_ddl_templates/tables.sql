@@ -7,8 +7,13 @@
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
 
 {% for schema in schemas %}
+    {% set create_stmt = "CREATE TABLE" %}
+    {% if schema == "TPCH_SF100_ICEBERG" %}
+        {% set create_stmt = "CREATE ICEBERG TABLE" %}
+    {% endif %}
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.CUSTOMER (
+
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.CUSTOMER (
         C_CUSTKEY    BIGINT,
         C_NAME       VARCHAR,
         C_ADDRESS    VARCHAR,
@@ -25,7 +30,7 @@
     {% endif %}
     ;
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.LINEITEM (
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.LINEITEM (
         L_ORDERKEY       BIGINT,
         L_PARTKEY        BIGINT,
         L_SUPPKEY        BIGINT,
@@ -50,7 +55,7 @@
     {% endif %}
     ;
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.NATION (
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.NATION (
         N_NATIONKEY INT,
         N_NAME      VARCHAR,
         N_REGIONKEY INT,
@@ -63,7 +68,7 @@
     {% endif %}
     ;
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.ORDERS (
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.ORDERS (
         O_ORDERKEY      BIGINT,
         O_CUSTKEY       BIGINT,
         O_ORDERSTATUS   VARCHAR,
@@ -81,7 +86,7 @@
     {% endif %}
     ;
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.PARTSUPP (
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.PARTSUPP (
         PS_PARTKEY     BIGINT,
         PS_SUPPKEY     BIGINT,
         PS_AVAILQTY    BIGINT,
@@ -95,7 +100,7 @@
     {% endif %}
     ;
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.PART (
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.PART (
         P_PARTKEY      BIGINT,
         P_NAME         VARCHAR,
         P_MFGR         VARCHAR,
@@ -113,7 +118,7 @@
     {% endif %}
     ;
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.REGION (
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.REGION (
         R_REGIONKEY INT,
         R_NAME      VARCHAR,
         R_COMMENT   VARCHAR
@@ -125,7 +130,7 @@
     {% endif %}
     ;
 
-    CREATE TABLE IF NOT EXISTS {{ schema }}.SUPPLIER (
+    {{ create_stmt }} IF NOT EXISTS {{ schema }}.SUPPLIER (
         S_SUPPKEY   BIGINT,
         S_NAME      VARCHAR,
         S_ADDRESS   VARCHAR,
