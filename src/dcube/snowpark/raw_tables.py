@@ -7,7 +7,7 @@ Last Updated: 16/09/2024
 # pyright: reportUnknownArgumentType=false
 # pyright: reportUnknownVariableType=false
 # pyright: reportUnknownMemberType=false
-from typing import Any, Dict, List
+from typing import Any, Dict
 from enum import Enum
 import re
 from snowflake.snowpark import Session, DataFrame
@@ -157,7 +157,8 @@ class RawTable:
 
         return self._session.sql(f"""
                                  select *
-                                 from result_scan('{qh.queries[0].query_id}')
+                                 from
+                                    table(result_scan('{qh.queries[0].query_id}'))
                                  """
                                  )
 
@@ -181,11 +182,10 @@ def load_from_csv(session: Session,
         # print(f"load table {str(tbl_config['table_name'])} succeeded")
         return df
     except Exception as err:
-        # print(f"load table {str(tbl_config['table_name'])} failed with error {err}")
-        # dg: DataFrame = None
         raise err
 
 
+"""
 if __name__ == "__main__":
     _session: Session = Session.builder.getOrCreate()
     _session.use_database("MEETUP_GDDP")
@@ -197,3 +197,4 @@ if __name__ == "__main__":
         "force": True
         }
         )
+"""
