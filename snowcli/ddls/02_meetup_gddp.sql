@@ -1,11 +1,16 @@
 USE ROLE SYSADMIN;
 
+------------------------------------------------------------------------------
+-- Create the database for the domain &{DOMAIN}
+------------------------------------------------------------------------------
 CREATE DATABASE IF NOT EXISTS &{DOMAIN};
 USE DATABASE &{DOMAIN};
-CREATE SCHEMA UTILS;
+
 ------------------------------------------------------------------------------
 -- Create the data product &{DOMAIN}.UTILS
 ------------------------------------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS UTILS;
+
 -- create external stages on s3 buckets
 CREATE STAGE IF NOT EXISTS &{DOMAIN}.UTILS.LANDING
   STORAGE_INTEGRATION = &{DOMAIN}_S3
@@ -28,15 +33,17 @@ CREATE GIT REPOSITORY IF NOT EXISTS &{DOMAIN}.UTILS.GIT_REPO
 ALTER GIT REPOSITORY &{DOMAIN}.UTILS.GIT_REPO FETCH
 
 -- create the generic stored procedure to load raw data from csv
-CREATE PROCEDURE IF NOT EXISTS &{DOMAIN}.UTILS.LOAD_FROM_CSV(config variant)
+CREATE OR REPLACE PROCEDURE &{DOMAIN}.UTILS.LOAD_FROM_CSV(tbl_config variant)
     returns table()
     language python
     runtime_version='3.11'
     packages=('snowflake-snowpark-python')
-    imports=('@&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowpark/dcube/table_functions.py')
-    handler='raw_data_csv_loader.load_raw_data';
+    imports=('@&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowpark/dcube/raw_tables.py')
+    handler='raw_tables.load_from_csv';
 
--- create the schemas tpch_sf100 and tpch_sf100_iceberg
+------------------------------------------------------------------------------
+-- Create the data products &{DOMAIN}.TPCH_SF100 & TPCH_SF100_ICEBERG
+------------------------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS &{DOMAIN}.TPCH_SF100;
 CREATE SCHEMA IF NOT EXISTS &{DOMAIN}.TPCH_SF100_ICEBERG;
 
