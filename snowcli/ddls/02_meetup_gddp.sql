@@ -1,23 +1,23 @@
 USE ROLE SYSADMIN;
 
 ------------------------------------------------------------------------------
--- Create the database for the domain &{DOMAIN}
+-- Create the database for the domain &{domain}
 ------------------------------------------------------------------------------
-CREATE DATABASE IF NOT EXISTS &{DOMAIN};
-USE DATABASE &{DOMAIN};
+CREATE DATABASE IF NOT EXISTS &{domain};
+USE DATABASE &{domain};
 
 ------------------------------------------------------------------------------
--- Create the data product &{DOMAIN}.UTILS
+-- Create the data product &{domain}.UTILS
 ------------------------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS UTILS;
 
 -- create external stages on s3 buckets
-CREATE STAGE IF NOT EXISTS &{DOMAIN}.UTILS.LANDING
-  STORAGE_INTEGRATION = &{DOMAIN}_S3
-  URL = '&{S3_LANDING_BUCKET}/';
+CREATE STAGE IF NOT EXISTS &{domain}.UTILS.LANDING
+  STORAGE_INTEGRATION = &{domain}_S3
+  URL = '&{s3_landing_bucket}/';
 
 -- create file format for CSV with | column delimiter
-CREATE FILE FORMAT IF NOT EXISTS &{DOMAIN}.UTILS.CSV_FMT1
+CREATE FILE FORMAT IF NOT EXISTS &{domain}.UTILS.CSV_FMT1
     TYPE = 'csv'
     FIELD_DELIMITER = '|'
     FIELD_OPTIONALLY_ENCLOSED_BY = '"'
@@ -25,31 +25,32 @@ CREATE FILE FORMAT IF NOT EXISTS &{DOMAIN}.UTILS.CSV_FMT1
     PARSE_HEADER = true;
 
 -- create git repo
-CREATE GIT REPOSITORY IF NOT EXISTS &{DOMAIN}.UTILS.GIT_REPO
-  API_INTEGRATION = &{DOMAIN}_GIT
-  ORIGIN = '&{GIT_REPO_URI}';
+CREATE GIT REPOSITORY IF NOT EXISTS &{domain}.UTILS.GIT_REPO
+  API_INTEGRATION = &{domain}_GIT
+  ORIGIN = '&{git_repo_uri}';
 
 -- fetch the git repo to update it
-ALTER GIT REPOSITORY &{DOMAIN}.UTILS.GIT_REPO FETCH;
+ALTER GIT REPOSITORY &{domain}.UTILS.GIT_REPO FETCH;
 
 -- create the generic stored procedure to load raw data from csv
-CREATE OR REPLACE PROCEDURE &{DOMAIN}.UTILS.LOAD_FROM_CSV(tbl_config variant)
+CREATE OR REPLACE PROCEDURE &{domain}.UTILS.LOAD_FROM_CSV(tbl_config variant)
     returns table()
     language python
     runtime_version='3.11'
     packages=('snowflake-snowpark-python')
-    imports=('@&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowpark/dcube/raw_tables.py')
+    imports=('@&{domain}.UTILS.GIT_REPO/&{git_ref}/snowpark/dcube/raw_tables.py')
     handler='raw_tables.load_from_csv';
 
 ------------------------------------------------------------------------------
--- Create the data products &{DOMAIN}.TPCH_SF100 & TPCH_SF100_ICEBERG
+-- Create the data products &{domain}.TPCH_SF100 & TPCH_SF100_ICEBERG
 ------------------------------------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
 CREATE SCHEMA IF NOT EXISTS TPCH_SF100_ICEBERG;
 
 -- Deploy tpch tables
-EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowcli/tpch_ddl_templates/tables.sql;
+EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/tables.sql
+USING domain=>'&{domain}';
 
 -- Deploy tpch dags
-EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowcli/tpch_ddl_templates/dag_load_parallel.sql;
-EXECUTE IMMEDIATE FROM @&{DOMAIN}.UTILS.GIT_REPO/&{GIT_REF}/snowcli/tpch_ddl_templates/dag_load_sequentially.sql;
+EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dag_load_parallel.sql;
+EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dag_load_sequentially.sql;
