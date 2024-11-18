@@ -8,31 +8,9 @@ import os
 import time
 import json
 import argparse
-from typing import Dict
 from concurrent.futures import ThreadPoolExecutor
 from snowflake.snowpark import Session
-from dcube.snowpark.raw_tables import RawTable, WriteMode
-
-
-def load_table(session: Session, tbl: Dict[str, str | bool]) -> None:
-    """ load table """
-    try:
-        raw_table = RawTable(
-            session=session,
-            name=str(tbl["table_name"])
-            )
-
-        raw_table.load_from_csv(
-            location=str(tbl.get("stage_path")),
-            file_format=str(tbl.get("file_format")),
-            mode=WriteMode(str(tbl.get("mode")).lower()),
-            force=bool(tbl.get("force"))
-            )
-
-        print(f"load table {str(tbl['table_name'])} succeeded")
-
-    except Exception as err:
-        print(f"load table {str(tbl['table_name'])} failed with error {err}")
+from src.dcube.snowpark.raw_tables import load_from_csv
 
 
 if __name__ == "__main__":
@@ -79,9 +57,9 @@ if __name__ == "__main__":
             with ThreadPoolExecutor() as executor:
                 futures = executor.map(  # type: ignore
                     lambda tbl_def:  # type: ignore
-                    load_table(snowpark_session, tbl_def),  # type: ignore
+                    load_from_csv(snowpark_session, tbl_def),  # type: ignore
                     tables_definition
                     )
         else:
             for tbl_def in tables_definition:
-                load_table(snowpark_session, tbl_def)
+                load_from_csv(snowpark_session, tbl_def)

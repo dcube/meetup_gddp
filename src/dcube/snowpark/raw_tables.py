@@ -1,6 +1,6 @@
 """
 Module: dcube.snowpark
-Script: table_functions.py
+Script: raw_tables.py
 Author: Frédéric BROSSARD
 Last Updated: 16/09/2024
 """
@@ -11,6 +11,7 @@ from typing import Any, Dict
 from enum import Enum
 import re
 from snowflake.snowpark import Session
+from snowflake.snowpark.types import Variant as Variant
 from snowflake.snowpark.exceptions import SnowparkSQLException
 from snowflake.snowpark.functions import lit, listagg, concat, col
 
@@ -155,7 +156,7 @@ class RawTable:
                            force=force)
 
 
-def load_from_csv(session: Session, tbl: Dict[str, str | bool]) -> None:
+def load_from_csv_old(session: Session, tbl: Dict[str, str | bool]) -> None:
     """ load table """
     try:
         raw_table = RawTable(
@@ -174,3 +175,24 @@ def load_from_csv(session: Session, tbl: Dict[str, str | bool]) -> None:
 
     except Exception as err:
         print(f"load table {str(tbl['table_name'])} failed with error {err}")
+
+
+def load_from_csv(session: Session, tbl_config: Variant) -> None:
+    """ load table """
+    try:
+        raw_table = RawTable(
+            session=session,
+            name=str(tbl_config["table_name"])
+            )
+
+        raw_table.load_from_csv(
+            location=str(tbl_config["stage_path"]),
+            file_format=str(tbl_config["file_format"]),
+            mode=WriteMode(str(tbl_config["mode"]).lower()),
+            force=bool(tbl_config["force"])
+            )
+
+        print(f"load table {str(tbl_config['table_name'])} succeeded")
+
+    except Exception as err:
+        print(f"load table {str(tbl_config['table_name'])} failed with error {err}")

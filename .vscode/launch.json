@@ -26,6 +26,19 @@
         "cwd": "${workspaceFolder}/tools/snowpark/"
       },
       {
+        "name": "load tpch_sf100 parallel, medium",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "load_from_csv",
+        "args": [
+          "--warehouse", "load",
+          "--size", "medium",
+          "--database", "meetup_gddp",
+          "--mode", "parallel",
+          "--tables_definition", "${workspaceFolder}/tools/snowpark/tpch_sf100.json"],
+        "cwd": "${workspaceFolder}/tools/snowpark/"
+      },
+      {
         "name": "load tpch_sf100 sequential, large",
         "type": "debugpy",
         "request": "launch",
