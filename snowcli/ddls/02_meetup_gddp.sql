@@ -14,7 +14,7 @@ CREATE SCHEMA IF NOT EXISTS UTILS;
 -- create external stages on s3 buckets
 CREATE STAGE IF NOT EXISTS &{domain}.UTILS.LANDING
   STORAGE_INTEGRATION = &{domain}_S3
-  URL = '&{s3_landing_bucket}/';
+  URL = '&{s3_landing_bucket}';
 
 -- create file format for CSV with | column delimiter
 CREATE FILE FORMAT IF NOT EXISTS &{domain}.UTILS.CSV_FMT1

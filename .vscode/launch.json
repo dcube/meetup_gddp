@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
       {
-        "name": "debug streamlit app",
+        "name": "test streamlit app",
         "type": "debugpy",
         "request": "launch",
         "module": "streamlit",
@@ -13,43 +13,44 @@
         "cwd": "${workspaceFolder}/streamlit_app"
       },
       {
-        "name": "load tpch_sf100 parallel, large",
+        "name": "test snowpark load_from_csv",
         "type": "debugpy",
         "request": "launch",
         "module": "load_from_csv",
         "args": [
           "--warehouse", "load",
-          "--size", "LARGE",
+          "--size", "${input:warehouse_size}",
           "--database", "meetup_gddp",
-          "--mode", "parallel",
-          "--tables_definition", "${workspaceFolder}/test/snowpark/tpch_sf100.json"],
-        "cwd": "${workspaceFolder}/test/snowpark/"
-      },
-      {
-        "name": "load tpch_sf100 parallel, medium",
-        "type": "debugpy",
-        "request": "launch",
-        "module": "load_from_csv",
-        "args": [
-          "--warehouse", "load",
-          "--size", "medium",
-          "--database", "meetup_gddp",
-          "--mode", "parallel",
-          "--tables_definition", "${workspaceFolder}/test/snowpark/tpch_sf100.json"],
-        "cwd": "${workspaceFolder}/test/snowpark/"
-      },
-      {
-        "name": "load tpch_sf100 sequential, large",
-        "type": "debugpy",
-        "request": "launch",
-        "module": "load_from_csv",
-        "args": [
-          "--warehouse", "load",
-          "--size", "LARGE",
-          "--database", "meetup_gddp",
-          "--mode", "sequential",
-          "--tables_definition", "${workspaceFolder}/test/snowpark/tpch_sf100.json"],
-        "cwd": "${workspaceFolder}/test/snowpark/"
+          "--mode", "${input:load_mode}",
+          "--tables_definition", "${input:load_from_csv_tbl_def}"
+        ],
+        "cwd": "${workspaceFolder}/tests/snowpark/"
       }
-  ]
+    ],
+  "inputs": [
+        {
+          "id": "warehouse_size",
+          "type": "pickString",
+          "description": "Select the size for the load",
+          "options": ["MEDIUM", "LARGE"],
+          "default": "MEDIUM"
+        },
+        {
+          "id": "load_mode",
+          "type": "pickString",
+          "description": "Select the mode for the load",
+          "options": ["parallel", "serial"],
+          "default": "parallel"
+        },
+        {
+          "id": "load_from_csv_tbl_def",
+          "type": "pickString",
+          "description": "Select the json entry to run",
+          "options": [
+            "./tpch_sf100.json",
+            "./tpch_sf100_iceberg.json"
+          ],
+          "default": "${workspaceFolder}/tests/snowpark/tpch_sf100.json"
+        }
+      ]
   }

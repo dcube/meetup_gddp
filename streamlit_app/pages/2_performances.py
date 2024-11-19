@@ -1,5 +1,5 @@
 """..."""
-from pandas import DataFrame as     pdDataFrame
+from pandas import DataFrame as pdDataFrame
 import altair as alt
 import streamlit as st
 from modules.st_utils.page_template import PageTemplate
@@ -17,7 +17,7 @@ class PerformancePage(PageTemplate):
     @st.cache_data(ttl="1d")
     def get_data_from_query_history(cls,
                                     timeframe_option: str = "day",
-                                    timeframe_depth_option: int = 7
+                                    timeframe_depth_option: int = 30
                                     ) -> pdDataFrame:
         """ get copy into executions from query history"""
         df = cls._sf_session.sql(f"""
