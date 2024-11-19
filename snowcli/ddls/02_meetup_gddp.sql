@@ -49,7 +49,7 @@ CREATE SCHEMA IF NOT EXISTS TPCH_SF100_ICEBERG;
 
 -- Deploy tpch tables
 EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/tables.sql
-USING (domain=>'&{domain}')
+USING (domain => '&{domain}')
 DRY_RUN = &{dry_run};
 
 -- Deploy tpch dags
