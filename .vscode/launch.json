@@ -20,7 +20,7 @@
         "args": [
           "--warehouse", "load",
           "--size", "${input:warehouse_size}",
-          "--database", "meetup_gddp",
+          "--database", "MEETUP_GDDP",
           "--mode", "${input:load_mode}",
           "--tables_definition", "${input:load_from_csv_tbl_def}"
         ],

@@ -20,6 +20,7 @@ class ExecuteSQLPage(PageTemplate):
     def __init__(cls):
         # Call the PageTemplace class constructor
         super().__init__()
+        cls._sf_session.use_database("MEETUP_GDDP")
 
         # retrieve list of virtual warehouses
         cls.set_virtual_warehouses()
@@ -94,7 +95,7 @@ class ExecuteSQLPage(PageTemplate):
     def set_database_schemas(cls) -> None:
         """list the database schema"""
         # get warehouses descriptions without need of compute
-        cls._sf_session.sql("SHOW SCHEMAS IN ACCOUNT").collect()
+        cls._sf_session.sql("SHOW SCHEMAS LIKE 'TPCH_SF100%'").collect()
         df_schemas = cls._sf_session.sql("SELECT * FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))").to_pandas()
 
         # add calc column with wh name and size
@@ -224,7 +225,7 @@ class ExecuteSQLPage(PageTemplate):
                 # execute queries
                 cls._sf_session.query_tag = json.dumps(
                         {
-                            "program": "meetup_gddp",
+                            "domain": "MEETUP_GDDP",
                             "kind": "streamlit",
                             "module": "sql runner",
                             "run_time": int(time.time()),

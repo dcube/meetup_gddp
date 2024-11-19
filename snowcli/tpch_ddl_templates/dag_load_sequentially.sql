@@ -37,7 +37,7 @@
 
         {% endif %}
         -- Resume child tasks to enable them
-        ALTER TASK IF EXISTS {{ schema | upper }}.{{ table | upper }} RESUME;
+        ALTER TASK IF EXISTS {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }} RESUME;
     {% endfor %}
 
 {% endfor %}

@@ -26,7 +26,7 @@
             FORCE = TRUE;
 
         -- Resume child tasks to enable them
-        ALTER TASK IF EXISTS {{ schema | upper }}.{{ table | upper  }} RESUME;
+        ALTER TASK IF EXISTS {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }} RESUME;
     {% endfor %}
 
 {% endfor %}
