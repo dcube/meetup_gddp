@@ -14,10 +14,17 @@
         SELECT 'dummy';
 
     {% for table in tables %}
-        -- Create tasks for loading data
-        CREATE OR ALTER TASK {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }}
+        CREATE OR ALTER TASK {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }}_TRUNCATE
             WAREHOUSE=LOAD
             AFTER {{ schema | upper }}.LOAD_PARALLEL_MAIN
+            AS
+            TRUNCATE TABLE {{ schema | upper }}.{{ table | upper }};
+
+
+        -- Create tasks for loading data
+        CREATE OR ALTER TASK {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }}_COPY
+            WAREHOUSE=LOAD
+            AFTER TASK {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }}_TRUNCATE
             AS
             COPY INTO {{ schema | upper }}.{{ table | upper }}
             FROM @utils.landing/tpch-sf100/csv/{{ table | lower }}/
@@ -26,7 +33,8 @@
             FORCE = TRUE;
 
         -- Resume child tasks to enable them
-        ALTER TASK IF EXISTS {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }} RESUME;
+        ALTER TASK IF EXISTS {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }}_TRUNCATE RESUME;
+        ALTER TASK IF EXISTS {{ schema | upper }}.LOAD_PARALLEL_{{ table | upper }}_COPY RESUME;
     {% endfor %}
 
 {% endfor %}
