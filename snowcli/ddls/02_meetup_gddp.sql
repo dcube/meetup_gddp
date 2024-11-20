@@ -54,7 +54,9 @@ DRY_RUN = &{dry_run};
 
 -- Deploy tpch dags
 EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dag_load_parallel.sql
+USING (domain => '&{domain}')
 DRY_RUN = &{dry_run};
 
 EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dag_load_sequentially.sql
+USING (domain => '&{domain}')
 DRY_RUN = &{dry_run};

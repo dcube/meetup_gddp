@@ -8,40 +8,40 @@
 
 {% for schema in schemas %}
     -- Create the root task
-    CREATE OR ALTER TASK {{ schema }}.LOAD_SEQUENTIALLY_MAIN
+    CREATE OR ALTER TASK {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_MAIN
         WAREHOUSE=LOAD
         AS
         SELECT 'dummy';
 
     {% for table in tables %}
         {% if loop.first %}
-            CREATE OR ALTER TASK {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }}_TRUNCATE
+            CREATE OR ALTER TASK {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_{{ table }}_TRUNCATE
             WAREHOUSE=LOAD
-            AFTER {{ schema | upper }}.LOAD_SEQUENTIALLY_MAIN
+            AFTER {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_MAIN
             AS
-            TRUNCATE TABLE {{ schema | upper }}.{{ table | upper }};
+            TRUNCATE TABLE {{ domain }}.{{ schema }}.{{ table }};
 
         {% else %}
-            CREATE OR ALTER TASK {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }}_TRUNCATE
+            CREATE OR ALTER TASK {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_{{ table }}_TRUNCATE
             WAREHOUSE=LOAD
-            AFTER {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ tables[loop.index0 - 1] | upper }}_COPY
+            AFTER {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_{{ tables[loop.index0 - 1] }}_COPY
             AS
-            TRUNCATE TABLE {{ schema | upper }}.{{ table | upper }};
+            TRUNCATE TABLE {{ domain }}.{{ schema }}.{{ table }};
         {% endif %}
 
-        CREATE OR ALTER TASK {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }}_COPY
+        CREATE OR ALTER TASK {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_{{ table }}_COPY
             WAREHOUSE=LOAD
-            AFTER {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }}_TRUNCATE
+            AFTER {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_{{ table }}_TRUNCATE
             AS
-            COPY INTO {{ schema | upper }}.{{ table | upper }}
-            FROM @utils.landing/tpch-sf100/csv/{{ table | lower }}/
-            FILE_FORMAT = (FORMAT_NAME = 'UTILS.CSV_FMT1')
+            COPY INTO {{ domain }}.{{ schema }}.{{ table }}
+            FROM @{{ domain }}.utils.landing/tpch-sf100/csv/{{ table | lower }}/
+            FILE_FORMAT = (FORMAT_NAME = '{{ domain }}.utils.csv_fmt1')
             MATCH_BY_COLUMN_NAME = CASE_INSENSITIVE
             FORCE = TRUE;
 
         -- Resume child tasks to enable them
-        ALTER TASK IF EXISTS {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }}_TRUNCATE RESUME;
-        ALTER TASK IF EXISTS {{ schema | upper }}.LOAD_SEQUENTIALLY_{{ table | upper }}_COPY RESUME;
+        ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_{{ table }}_TRUNCATE RESUME;
+        ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.LOAD_SEQUENTIALLY_{{ table }}_COPY RESUME;
     {% endfor %}
 
 {% endfor %}
