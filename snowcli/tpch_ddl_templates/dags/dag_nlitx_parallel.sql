@@ -4,7 +4,7 @@
 -- create the DAG to exec tpch queries in parallel
 ------------------------------------------------------------------------------
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
-{M set dag = "NLITX_PARALLEL"}
+{% set dag = "NLITX_PARALLEL" %}
 
 -- Loop over schemas to create tasks
 {% for schema in schemas %}

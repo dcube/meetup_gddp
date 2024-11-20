@@ -48,21 +48,20 @@ CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
 CREATE SCHEMA IF NOT EXISTS TPCH_SF100_ICEBERG;
 
 -- Deploy tpch tables
-EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/tables.sql
+EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/tables/tables.sql
 USING (domain => '&{domain}')
 DRY_RUN = &{dry_run};
 
 -- Deploy tpch load dags
-EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dag_load_parallel.sql
+EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_load_parallel.sql
 USING (domain => '&{domain}')
 DRY_RUN = &{dry_run};
 
-EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dag_load_sequentially.sql
+EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_load_sequentially.sql
 USING (domain => '&{domain}')
 DRY_RUN = &{dry_run};
 
 -- Deploy tpch analytics dags
-EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dag_nlitx_parallel.sql
+EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_nlitx_parallel.sql
 USING (domain => '&{domain}', git_ref => '&{git_ref}')
 DRY_RUN = &{dry_run};
-
