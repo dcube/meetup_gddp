@@ -24,12 +24,11 @@
             WAREHOUSE=ANALYSIS
             AFTER {{ domain }}.{{ schema }}.NLITX_PARALLEL_MAIN
             AS
-            EXECUTE IMMEDIATE FROM @{{ domain }}.UTILS.GIT_REPO/{{ git_ref }}/snowcli/tpch_queries/{{ basename }}.sql
+            EXECUTE IMMEDIATE FROM @{{ domain }}.UTILS.GIT_REPO/{{ git_ref }}/snowcli/tpch_queries/{{ basename | lower }}.sql
             ;
 
         -- Resume child tasks to enable them
-        ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.NLITX_PARALLEL_{{ filenm | upper }}_SELCT RESUME;
+        ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.NLITX_PARALLEL_{{ basename | upper }}_SELCT RESUME;
     {% endfor %}
 
 {% endfor %}
-
