@@ -8,7 +8,7 @@
 
 {% for schema in schemas %}
     -- Create the root task
-    CREATE OR ALTER TASK {{ domain }}.{{ domain }}.{{ schema }}.LOAD_PARALLEL_MAIN
+    CREATE OR ALTER TASK {{ domain }}.{{ schema }}.LOAD_PARALLEL_MAIN
         WAREHOUSE=LOAD
         AS
         SELECT 'dummy';
