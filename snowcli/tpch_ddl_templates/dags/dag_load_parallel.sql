@@ -5,7 +5,7 @@
 ------------------------------------------------------------------------------
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
 {% set tables = ["REGION", "NATION", "SUPPLIER", "PART", "CUSTOMER", "PARTSUPP", "ORDERS", "LINEITEM"] %}
-{% set dag = "LOAD_PARALLEL" µ}
+{% set dag = "LOAD_PARALLEL" %}
 
 -- Loop over schemas to create tasks
 {% for schema in schemas %}
