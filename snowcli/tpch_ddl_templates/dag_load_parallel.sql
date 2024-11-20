@@ -6,13 +6,16 @@
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
 {% set tables = ["REGION", "NATION", "SUPPLIER", "PART", "CUSTOMER", "PARTSUPP", "ORDERS", "LINEITEM"] %}
 
+-- Loop over schemas to create tasks
 {% for schema in schemas %}
+
     -- Create the root task
     CREATE OR ALTER TASK {{ domain }}.{{ schema }}.LOAD_PARALLEL_MAIN
         WAREHOUSE=LOAD
         AS
         SELECT 'dummy';
 
+    -- loop over tables to creates child tasks (truncate and copy into)
     {% for table in tables %}
         CREATE OR ALTER TASK {{ domain }}.{{ schema }}.LOAD_PARALLEL_{{ table }}_TRUNCATE
             WAREHOUSE=LOAD

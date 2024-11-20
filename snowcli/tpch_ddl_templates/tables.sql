@@ -5,13 +5,16 @@
 ------------------------------------------------------------------------------
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
 
+-- Loop over schemas to create schemas
 {% for schema in schemas %}
+    -- create snowflake internal table or iceberg tables
+    -- depending on the schema name
     {% set create_stmt = "CREATE TABLE" %}
     {% if schema == "TPCH_SF100_ICEBERG" %}
         {% set create_stmt = "CREATE ICEBERG TABLE" %}
     {% endif %}
 
-
+    -- create each tables
     {{ create_stmt }} IF NOT EXISTS {{ schema }}.CUSTOMER (
         C_CUSTKEY    BIGINT,
         C_NAME       VARCHAR,

@@ -39,9 +39,10 @@ class CompleteDagsPage(PageTemplate):
                     th.root_task_id,
                     th.scheduled_from,
                     th.name,
-                    split(th.name,'_')[0]::string as task_type,
-                    split(th.name,'_')[1]::string as run_mode,
+                    split(th.name,'_')[0]::string as dag_type,
+                    split(th.name,'_')[1]::string as dag_run_mode,
                     split(th.name,'_')[2]::string as subject,
+                    split(th.name,'_')[3]::string as operation,
                     th.database_name,
                     th.schema_name,
                     th.query_id,
@@ -76,6 +77,7 @@ class CompleteDagsPage(PageTemplate):
                 where
                     th.database_name='MEETUP_GDDP'
                 and th.query_start_time > current_date() - 7
+                order by th.run_id, dag_start_time
                  """)
             )
 
@@ -102,7 +104,11 @@ class CompleteDagsPage(PageTemplate):
             # aggregate the dataframe to get dags summary
             df_dags = (
                 df_tasks.groupby(
-                       ["DAG_RUN_NUMBER", "DAG_START_TIME", "DAG_END_TIME", "DAG_DURATION", "DAG_ROOT_TASK", "SCHEMA_NAME"],
+                       [
+                           "DAG_RUN_NUMBER", "DAG_START_TIME", "DAG_END_TIME",
+                           "DAG_DURATION", "DAG_ROOT_TASK", "SCHEMA_NAME",
+                           "DAG_TYPE", "DAG_RUN_MODE"
+                        ],
                        as_index=False
                     )
                 .agg(
@@ -125,10 +131,10 @@ class CompleteDagsPage(PageTemplate):
                     )
                 )
 
-            chart_part1 = (
+            chart_dags = (
                 alt.Chart(df_dags).mark_bar()  # type: ignore
                 .encode(
-                    x=alt.X("DAG_ROOT_TASK:N", axis=alt.Axis(title=None)),
+                    x=alt.X("DAG_ROOT_TASK:N", axis=alt.Axis(title=None, labelAngle=0, labelLimit=200)),
                     y=alt.Y("DAG_DURATION:Q", title=None),
                     color=alt.Color(
                         "SCHEMA_NAME:N",
@@ -151,8 +157,10 @@ class CompleteDagsPage(PageTemplate):
                             title="Dag duration (sec) by run")
             )
 
+
+
             # Display the chart in Streamlit
-            st.altair_chart(chart_part1,  # type: ignore
+            st.altair_chart(chart_dags,  # type: ignore
                             use_container_width=True)
         with tab2:
             # view the dataframe
