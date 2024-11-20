@@ -24,8 +24,7 @@
             WAREHOUSE=ANALYSIS
             AFTER {{ domain }}.{{ schema }}.NLITX_PARALLEL_MAIN
             AS
-            --EXECUTE IMMEDIATE FROM @{{ domain }}.UTILS.GIT_REPO/{{ git_ref }}/snowcli/tpch_queries/{{ basename | lower }}.sql
-            {{ '@'+ domain + '.UTILS.GIT_REPO/' + git_ref + '/snowcli/tpch_queries/' + basename + '.sql' | read_file }}
+            EXECUTE IMMEDIATE FROM @{{ domain }}.UTILS.GIT_REPO/{{ git_ref }}/snowcli/tpch_queries/{{ basename | lower }}.sql
             ;
 
         -- Resume child tasks to enable them
