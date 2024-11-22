@@ -68,7 +68,7 @@ def run_dag(sf_root: Root, sf_db: str, sf_schema: str,
     if wh.state != "SUSPENDED":
         sf_root.warehouses[dag_wh].suspend()
 
-    print(f"Dag {dag} on {sf_db}.{sf_schema} with warehouse {dag_wh} ({wh_size}) loop {loop_idx} {df_dag_status[0]['STATE']}")
+    print(f"Dag {dag} on {sf_db}.{sf_schema} with warehouse {dag_wh} ({wh_size}) loop {loop_idx} ENDED")
 
 
 if __name__ == "__main__":
