@@ -1,5 +1,5 @@
 {
-    "dag_loop": 5,
+    "dag_loop": 3,
     "tests": [
         {"id": 1,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_PARALLEL",    "warehouse_size": "MEDIUM" },
         {"id": 2,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_PARALLEL",    "warehouse_size": "LARGE"  },

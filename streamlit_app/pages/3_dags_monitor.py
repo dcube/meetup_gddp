@@ -46,7 +46,7 @@ class DagsMonitorPage(PageTemplate):
                 .mark_bar()  # type: ignore
                 .encode(
                     x=alt.X("DAG_NAME:N", axis=alt.Axis(title=None, labelAngle=0, labelLimit=200)),
-                    y=alt.Y("DAG_DURATION:Q", title=None),
+                    y=alt.Y("DAG_DURATION_S:Q", title=None),
                     color=alt.Color(
                         "SCHEMA_NAME:N",
                         scale=alt.Scale(domain=["TPCH_SF100", "TPCH_SF100_ICEBERG"],
@@ -55,9 +55,9 @@ class DagsMonitorPage(PageTemplate):
                     xOffset="DAG_RUN_NUMBER:N",
                     tooltip=[
                         "DAG_RUN_NUMBER", "DAG_START_TIME", "DAG_END_TIME",
-                        "DAG_DURATION", "DAG_NAME", "SCHEMA_NAME",
-                        "TOTAL_CREDITS", "COMPILATION_TIME", "QUEUED_PROVISIONING_TIME",
-                        "TOTAL_ELAPSED_TIME", "PARTITIONS_SCANNED", "PARTITIONS_TOTAL",
+                        "DAG_DURATION_S", "DAG_NAME", "SCHEMA_NAME", "TOTAL_CREDITS",
+                        "COMPILATION_TIME_S", "QUEUED_PROVISIONING_TIME_S", "QUEUED_OVERLOAD_TIME_S",
+                        "TOTAL_ELAPSED_TIME_S", "PARTITIONS_SCANNED", "PARTITIONS_TOTAL",
                         "BYTES_SPILLED_TO_LOCAL_STORAGE", "BYTES_SPILLED_TO_REMOTE_STORAGE",
                         "ROWS_PRODUCED", "ROWS_INSERTED", "ROWS_UPDATED", "ROWS_DELETED",
                         "ROWS_UNLOADED", "ROWS_WRITTEN_TO_RESULT"

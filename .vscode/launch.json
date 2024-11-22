@@ -16,7 +16,7 @@
         "name": "test run (benchmark",
         "type": "debugpy",
         "request": "launch",
-        "module": "test_run",
+        "module": "benchmark_run",
         "args": [],
         "cwd": "${workspaceFolder}/tests/snowpark/benchmark/"
       },

@@ -26,8 +26,8 @@ class DagRuns:
                 SELECT
                     TH.RUN_ID,
                     DENSE_RANK() OVER (ORDER BY TH.RUN_ID) AS DAG_RUN_NUMBER,
-                    CONVERT_TIMEZONE('Europe/Paris', MIN(TH.QUERY_START_TIME) OVER (PARTITION BY TH.RUN_ID))::datetime AS DAG_START_TIME,
-                    CONVERT_TIMEZONE('Europe/Paris', MAX(TH.COMPLETED_TIME) OVER (PARTITION BY TH.RUN_ID))::datetime AS DAG_END_TIME,
+                    MIN(TH.QUERY_START_TIME) OVER (PARTITION BY TH.RUN_ID) AS DAG_START_TIME,
+                    MAX(TH.COMPLETED_TIME) OVER (PARTITION BY TH.RUN_ID) AS DAG_END_TIME,
                     DATEDIFF('S', DAG_START_TIME, DAG_END_TIME) AS DAG_DURATION_S,
                     TV.NAME AS DAG_NAME,
                     TH.ROOT_TASK_ID,
@@ -41,8 +41,8 @@ class DagRuns:
                     TH.SCHEMA_NAME,
                     TH.QUERY_ID,
                     TH.QUERY_TEXT,
-                    CONVERT_TIMEZONE('Europe/Paris', TH.QUERY_START_TIME)::datetime as TASK_START_TIME,
-                    CONVERT_TIMEZONE('Europe/Paris', TH.COMPLETED_TIME)::datetime as TASK_COMPLETED_TIME,
+                    TH.QUERY_START_TIME as TASK_START_TIME,
+                    TH.COMPLETED_TIME as TASK_COMPLETED_TIME,
                     TH.STATE,
                     QAH.WAREHOUSE_NAME,
                     QH.WAREHOUSE_SIZE,
@@ -74,7 +74,7 @@ class DagRuns:
                         ON QH.QUERY_ID = TH.QUERY_ID
                 WHERE
                     TH.DATABASE_NAME='MEETUP_GDDP'
-                AND TH.QUERY_START_TIME >= '2024-11-21 15:21:00'
+                AND TH.QUERY_START_TIME >= '2024-11-22 02:44:50'
                 ORDER BY TH.RUN_ID, DAG_START_TIME, TH.QUERY_START_TIME
                 """)
             )
@@ -89,7 +89,7 @@ class DagRuns:
             .groupby(
                 [
                     "DAG_RUN_NUMBER", "DAG_START_TIME", "DAG_END_TIME",
-                    "DAG_DURATION", "DAG_NAME", "SCHEMA_NAME",
+                    "DAG_DURATION_S", "DAG_NAME", "SCHEMA_NAME",
                     "DAG_TYPE", "DAG_RUN_MODE",
                     "WAREHOUSE_NAME", "WAREHOUSE_SIZE"
                 ],
@@ -98,9 +98,10 @@ class DagRuns:
             .agg(
                 {
                     "TOTAL_CREDITS": "sum",
-                    "COMPILATION_TIME": "sum",
-                    "QUEUED_PROVISIONING_TIME": "sum",
-                    "TOTAL_ELAPSED_TIME": "sum",
+                    "COMPILATION_TIME_S": "sum",
+                    "QUEUED_PROVISIONING_TIME_S": "sum",
+                    "QUEUED_OVERLOAD_TIME_S": "sum",
+                    "TOTAL_ELAPSED_TIME_S": "sum",
                     "PARTITIONS_SCANNED": "sum",
                     "PARTITIONS_TOTAL": "sum",
                     "BYTES_SPILLED_TO_LOCAL_STORAGE": "sum",

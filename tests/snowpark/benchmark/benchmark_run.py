@@ -39,6 +39,8 @@ def run_dag(sf_root: Root, sf_db: str, sf_schema: str,
 
     # wait for the dag run completed
     while True:
+        time.sleep(10)
+
         df_dag_status = sf_root.session.sql(
             f"""
             SELECT ctg.STATE
@@ -47,7 +49,7 @@ def run_dag(sf_root: Root, sf_db: str, sf_schema: str,
                 inner join
                     TABLE(
                         INFORMATION_SCHEMA.TASK_HISTORY(
-                            SCHEDULED_TIME_RANGE_START => TO_TIMESTAMP_LTZ(CONVERT_TIMEZONE('GMT', 'America/Los_Angeles', '{start_time}')),
+                            SCHEDULED_TIME_RANGE_START => TO_TIMESTAMP_LTZ(CONVERT_TIMEZONE('GMT','Europe/Paris','{start_time}')),
                             TASK_NAME => '{dag}'
                             )
                         ) th ON TH.RUN_ID = CTG.RUN_ID
@@ -57,16 +59,16 @@ def run_dag(sf_root: Root, sf_db: str, sf_schema: str,
             """
             )
 
-        if df_dag_status.count() == 0:
-            time.sleep(1)
-        else:
+        if df_dag_status.count() == 1:
             break
 
     # suspend the warehouse
-    wh = sf_root.warehouses[dag_wh].fetch()
-
-    if wh.state != "SUSPENDED":
-        sf_root.warehouses[dag_wh].suspend()
+    try:
+        wh = sf_root.warehouses[dag_wh].fetch()
+        if wh.state != "SUSPENDED":
+            sf_root.warehouses[dag_wh].suspend()
+    except Exception:
+        pass
 
     print(f"Dag {dag} on {sf_db}.{sf_schema} with warehouse {dag_wh} ({wh_size}) loop {loop_idx} ENDED")
 
@@ -75,7 +77,7 @@ if __name__ == "__main__":
     session = Session.builder.create()
     root = Root(session)
 
-    with open(file="./test_run.json", mode="r", encoding="utf-8") as file:
+    with open(file="./benchmark_run.json", mode="r", encoding="utf-8") as file:
         tests_definition = json.load(file)
 
         # run each dag x times
