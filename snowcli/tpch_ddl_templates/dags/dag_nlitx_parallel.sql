@@ -6,6 +6,8 @@
 {% set schemas = ["TPCH_SF100", "TPCH_SF100_ICEBERG"] %}
 {% set dag = "NLITX_PARALLEL" %}
 
+USE ROLE SYSADMIN;
+
 -- Loop over schemas to create tasks
 {% for schema in schemas %}
 

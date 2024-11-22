@@ -13,6 +13,14 @@
         "cwd": "${workspaceFolder}/streamlit_app"
       },
       {
+        "name": "test run (benchmark",
+        "type": "debugpy",
+        "request": "launch",
+        "module": "test_run",
+        "args": [],
+        "cwd": "${workspaceFolder}/tests/snowpark/benchmark/"
+      },
+      {
         "name": "test snowpark load_from_csv",
         "type": "debugpy",
         "request": "launch",
@@ -24,7 +32,7 @@
           "--mode", "${input:load_mode}",
           "--tables_definition", "${input:load_from_csv_tbl_def}"
         ],
-        "cwd": "${workspaceFolder}/tests/snowpark/"
+        "cwd": "${workspaceFolder}/tests/snowpark/load_from_csv/"
       }
     ],
   "inputs": [
@@ -50,7 +58,7 @@
             "./tpch_sf100.json",
             "./tpch_sf100_iceberg.json"
           ],
-          "default": "${workspaceFolder}/tests/snowpark/tpch_sf100.json"
+          "default": "${workspaceFolder}/tests/snowpark/load_from_csv/tpch_sf100.json"
         }
       ]
   }

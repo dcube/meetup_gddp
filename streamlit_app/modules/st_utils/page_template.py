@@ -22,6 +22,9 @@ class PageTemplate:
         # get or init snowpark_session
         cls.set_session()
 
+        # set default warehouse to use
+        cls._sf_session.use_warehouse("MANAGE")
+
         # keep session between page navigation
         st.session_state.update(st.session_state)
 

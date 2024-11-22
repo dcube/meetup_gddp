@@ -7,6 +7,8 @@
 {% set tables = ["REGION", "NATION", "SUPPLIER", "PART", "CUSTOMER", "PARTSUPP", "ORDERS", "LINEITEM"] %}
 {% set dag = "LOAD_SEQUENTIAL" %}
 
+USE ROLE SYSADMIN;
+
 -- Loop over schemas to create tasks
 {% for schema in schemas %}
 

@@ -1,0 +1,29 @@
+{
+    "dag_loop": 5,
+    "tests": [
+        {"id": 1,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_PARALLEL",    "warehouse_size": "MEDIUM" },
+        {"id": 2,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_PARALLEL",    "warehouse_size": "LARGE"  },
+        {"id": 3,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_PARALLEL",    "warehouse_size": "XLARGE" },
+        {"id": 4,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_SEQUENTIAL",  "warehouse_size": "MEDIUM" },
+        {"id": 5,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_SEQUENTIAL",  "warehouse_size": "LARGE"  },
+        {"id": 6,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "LOAD_SEQUENTIAL",  "warehouse_size": "XLARGE" },
+        {"id": 7,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "NLITX_PARALLEL",   "warehouse_size": "MEDIUM" },
+        {"id": 8,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "NLITX_PARALLEL",   "warehouse_size": "LARGE"  },
+        {"id": 9,   "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "NLITX_PARALLEL",   "warehouse_size": "XLARGE" },
+        {"id": 10,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "NLITX_SEQUENTIAL", "warehouse_size": "MEDIUM" },
+        {"id": 11,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "NLITX_SEQUENTIAL", "warehouse_size": "LARGE"  },
+        {"id": 12,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100",          "dag": "NLITX_SEQUENTIAL", "warehouse_size": "XLARGE" },
+        {"id": 13,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "LOAD_PARALLEL",    "warehouse_size": "MEDIUM" },
+        {"id": 14,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "LOAD_PARALLEL",    "warehouse_size": "LARGE"  },
+        {"id": 15,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "LOAD_PARALLEL",    "warehouse_size": "XLARGE" },
+        {"id": 16,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "LOAD_SEQUENTIAL",  "warehouse_size": "MEDIUM" },
+        {"id": 17,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "LOAD_SEQUENTIAL",  "warehouse_size": "LARGE"  },
+        {"id": 18,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "LOAD_SEQUENTIAL",  "warehouse_size": "XLARGE" },
+        {"id": 19,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "NLITX_PARALLEL",   "warehouse_size": "MEDIUM" },
+        {"id": 20,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "NLITX_PARALLEL",   "warehouse_size": "LARGE"  },
+        {"id": 21,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "NLITX_PARALLEL",   "warehouse_size": "XLARGE" },
+        {"id": 22,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "NLITX_SEQUENTIAL", "warehouse_size": "MEDIUM" },
+        {"id": 23,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "NLITX_SEQUENTIAL", "warehouse_size": "LARGE"  },
+        {"id": 24,  "db": "MEETUP_GDDP", "schema": "TPCH_SF100_ICEBERG",  "dag": "NLITX_SEQUENTIAL", "warehouse_size": "XLARGE" }
+    ]
+}
