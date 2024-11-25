@@ -262,8 +262,8 @@ class ExecuteSQLPage(PageTemplate):
                         show_results(cls.__run_batch_query(query))
 
     @classmethod
-    def render_sidebar(cls) -> None:
-        """render the page sidebar """
+    def display_sidebar(cls) -> None:
+        """display the page sidebar """
         # check box to force to use a new snowpark session
         # (default value is True)
         cls._force_new_session = st.sidebar.checkbox(
@@ -323,13 +323,13 @@ class ExecuteSQLPage(PageTemplate):
             )
 
     @classmethod
-    def render(cls) -> None:
-        """ rendering this page by override the Template"""
+    def display(cls) -> None:
+        """ displaying this page by override the Template"""
         st.markdown(
             "<h1 style='text-align: center;'>Execute SQL queries</h1>",
             unsafe_allow_html=True)
 
-        cls.render_sidebar()
+        cls.display_sidebar()
 
         # depending on input_mode show text_are of file_uploader component
         queries: str = ""
@@ -358,5 +358,5 @@ if __name__ == '__main__':
     # set home page properties
     my_page = ExecuteSQLPage()
 
-    # render the page
-    my_page.render()
+    # display the page
+    my_page.display()

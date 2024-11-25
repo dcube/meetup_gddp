@@ -58,9 +58,9 @@ class PerformancePage(PageTemplate):
         return df.to_pandas()
 
     @classmethod
-    def render_data_loading_tab(cls, query_hist: pdDataFrame) -> None:
-        """ render data loading tab """
-        # rendering data loading tab
+    def display_data_loading_tab(cls, query_hist: pdDataFrame) -> None:
+        """ display data loading tab """
+        # displaying data loading tab
 
         # Input widgets
         qh_fltr = st.columns(3)
@@ -71,7 +71,7 @@ class PerformancePage(PageTemplate):
                 query_hist["WAREHOUSE_SIZE"].unique()  # type: ignore
                 )
 
-        # rendering copy run history
+        # displaying copy run history
         fltrd_query_hist = query_hist[query_hist["WAREHOUSE_SIZE"]
                                       .isin(warehouse_size)]  # type: ignore
 
@@ -135,8 +135,8 @@ class PerformancePage(PageTemplate):
                         use_container_width=True)
 
     @classmethod
-    def render(cls) -> None:
-        """ rendering this page by override the Template"""
+    def display(cls) -> None:
+        """ displaying this page by override the Template"""
         st.markdown(
             "<h1 style='text-align: center;'>TPC-H Performances</h1>",
             unsafe_allow_html=True)
@@ -147,7 +147,7 @@ class PerformancePage(PageTemplate):
         tab1, tab2 = st.tabs(["Data Loading", "TPC-H queries"])  # type: ignore
 
         with tab1:
-            cls.render_data_loading_tab(query_hist)
+            cls.display_data_loading_tab(query_hist)
         with tab2:
             st.write("todo")  # type: ignore
 
@@ -156,5 +156,5 @@ if __name__ == '__main__':
     # set home page properties
     my_page = PerformancePage()
 
-    # render the page
-    my_page.render()
+    # display the page
+    my_page.display()
