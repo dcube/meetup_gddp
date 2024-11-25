@@ -3,7 +3,9 @@ USE ROLE ACCOUNTADMIN;
 -- ACCOUNT PARAMETERS
 ALTER ACCOUNT SET
     TIMEZONE = 'Europe/Paris',
-    USE_CACHED_RESULT = FALSE -- disable cached query result set for testing purpose
+    USE_CACHED_RESULT = FALSE, -- disable cached query result set for testing purpose
+    ABORT_DETACHED_QUERY = TRUE,
+    STATEMENT_TIMEOUT_IN_SECONDS = 3600
     ;
 
 -- STORAGE INTEGRATION &{domain}_S3

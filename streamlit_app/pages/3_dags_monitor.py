@@ -1,5 +1,6 @@
 """..."""
 import os
+from pandas import DataFrame as PdDataFrame
 import altair as alt
 import streamlit as st
 from modules.st_utils.page_template import PageTemplate
@@ -20,52 +21,86 @@ class DagsMonitorPage(PageTemplate):
     def display_tab_dag_runs(cls) -> None:
         """ displaying the """
         with cls._tab_dag_runs:
-            # df_dag_runs_sum = cls._dags_runs.get_dag_runs_summary()
-            # define selection on click for warehouse
+            # get dag run stats
+            pd_dag_stats_dset = cls._dags_runs.get_dag_stats()
 
-            # wh_nm_click = alt.selection_point(fields=["WAREHOUSE_NAME"])
-            pd_dag_stats = cls._dags_runs.get_dag_stats()
+            (col_fltr1, col_fltr2, col_fltr3, col_fltr4) = st.columns(4)
+            with col_fltr1:
+                st.multiselect("Select a workload",
+                            options=pd_dag_stats_dset["WORKLOAD_TYPE"].unique(),
+                            key=f"{os.path.basename(__file__)}._fltr_workload_type")
 
-            # radio button to switch between parallel and sequential runs
-            fltr_dag_name = st.selectbox(
-                "Select a Dag",
-                options=pd_dag_stats["DAG_NAME"].unique(),
-                key=f"{os.path.basename(__file__)}._fltr_dag_name"
-                )
+            with col_fltr2:
+                st.multiselect("Select a run mode",
+                            options=pd_dag_stats_dset["RUN_MODE"].unique(),
+                            key=f"{os.path.basename(__file__)}._fltr_run_mode")
 
+            with col_fltr3:
+                st.multiselect("Select a warehouse size",
+                            options=pd_dag_stats_dset["WAREHOUSE_SIZE"].unique(),
+                            key=f"{os.path.basename(__file__)}._fltr_wh_size")
+
+            pd_dag_stats = pd_dag_stats_dset
+            _fltr_workload_type = st.session_state.get(f"{os.path.basename(__file__)}._fltr_workload_type")
+            if _fltr_workload_type:
+                pd_dag_stats = pd_dag_stats[pd_dag_stats["WORKLOAD_TYPE"].isin(_fltr_workload_type)]
+
+            _fltr_run_mode = st.session_state.get(f"{os.path.basename(__file__)}._fltr_run_mode")
+            if _fltr_run_mode:
+                pd_dag_stats = pd_dag_stats[pd_dag_stats["RUN_MODE"].isin(_fltr_run_mode)]
+
+            _fltr_wh_size = st.session_state.get(f"{os.path.basename(__file__)}._fltr_wh_size")
+            if _fltr_wh_size:
+                pd_dag_stats = pd_dag_stats[pd_dag_stats["WAREHOUSE_SIZE"].isin(_fltr_wh_size)]
+
+            # Define selection on click for DAG_NAME, WAREHOUSE_SIZE, and DATA_FORMAT
+            selection = alt.selection_point(fields=["DAG_NAME", "WAREHOUSE_SIZE", "DATA_FORMAT"], on="click")
+
+            # chart dag runs stats
             chart_dags = (
                 alt.Chart(pd_dag_stats)
                 .mark_bar()  # type: ignore
                 .encode(
-                    x=alt.X("DAG_NAME:N",
-                            title=None,
-                            axis=alt.Axis(
-                                labelAngle=0,
-                                labelExpr="replace(datum.value, '\\\\n', '\\n')"
-                                )
-                            ),
+                    x=alt.X("DAG_NAME:N", title=None, axis=alt.Axis(labelAngle=0)),
                     y=alt.Y("AVG_DURATION_S:Q", title=None),
                     xOffset=alt.XOffset("WAREHOUSE_SIZE:N", sort=["Medium", "Large", "X-Large"]),
                     row=alt.Row("DATA_FORMAT"),
-                    color=alt.Color(
-                        "WAREHOUSE_SIZE:N",
-                        title="Warehouse size",
-                        scale=alt.Scale(
-                            domain=["Medium", "Large", "X-Large"],
-                            range=["#C6D63B", "#DC9742", "#CD4E41"]
-                            )
+                    color=alt.condition(
+                        selection,
+                        alt.Color(
+                            "WAREHOUSE_SIZE:N",
+                            title="Warehouse size",
+                            scale=alt.Scale(
+                                domain=["Medium", "Large", "X-Large"],
+                                range=["#C6D63B", "#DC9742", "#CD4E41"]
+                                )
+                            ),
+                        alt.value("lightgray")  # Gray color for unselected bars
                         )
 
                 )
-
-                .transform_filter(alt.selection_point(fields=[fltr_dag_name]))
-                .properties(width=600, height=200,
-                            title="Dag duration (sec) by run")
+                .properties(height=200, title="Dag duration (sec) by run")
+                .add_params(selection)
             )
 
-            st.altair_chart(chart_dags, use_container_width=False)
+            # display the chart
+            dag_chart = st.altair_chart(chart_dags, use_container_width=True, on_select="rerun")
 
-            st.dataframe(pd_dag_stats)
+            # create data frame with selected points on dag_chart
+            pd_dag_chart_sel = PdDataFrame(PdDataFrame(dag_chart.selection)["param_1"].to_list())
+
+            # filtering the dag stats rows depending on chart selection
+            pd_dag_stats_selection = pd_dag_stats
+            if len(pd_dag_chart_sel) > 0:
+                # st.write(pd_dag_chart_sel)
+                # Apply filter based on selection
+                pd_dag_stats_selection = pd_dag_stats_selection.merge(
+                    pd_dag_chart_sel,
+                    on=["DAG_NAME", "DATA_FORMAT", "WAREHOUSE_SIZE"],
+                    how="inner")
+
+            # display th dag stats rows details
+            st.dataframe(pd_dag_stats_selection)
 
     @classmethod
     def display(cls) -> None:
