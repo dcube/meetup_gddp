@@ -88,10 +88,10 @@ class ExecuteSQLPage(PageTemplate):
         # get warehouses descriptions without need of compute
         _ = cls._sf_session.sql("SHOW SCHEMAS LIKE 'TPCH_SF100%'").collect()
 
-        df_schemas = cls._sf_session.sql("SELECT * FROM table(RESULT_SCAN(LAST_QUERY_ID()))").to_pandas()
+        df_schemas = cls._sf_session.sql("SELECT *, \"database_name\" || '.' || \"name\" as \"database_schema\" FROM table(RESULT_SCAN(LAST_QUERY_ID()))").to_pandas()
 
         # add calc column with wh name and size
-        df_schemas["database_schema"] = df_schemas["database_name"] + "." + df_schemas["name"]
+        # df_schemas["database_schema"] = df_schemas["database_name"] + "." + df_schemas["name"]
 
         # set the virtual warehouses list
         cls._db_schemas = df_schemas
@@ -145,13 +145,11 @@ class ExecuteSQLPage(PageTemplate):
         job_result: Dict[str, str] = {"query": sql_query}
 
         # run the query async
-        start_time = time.time()
         job = cls._sf_session.sql(sql_query).collect_nowait()
 
         # wait till the query is done
         while True:
             if job.is_done():
-                end_time = time.time()
                 break
 
         # get query execution information from the query_history
@@ -170,19 +168,15 @@ class ExecuteSQLPage(PageTemplate):
         job_result["query_id"] = job.query_id
 
         # add the query id to the job_result dict
-        # job_result["status"] = str(cls._sf_session._conn._conn.get_query_status(job.query_id)).split(".")[1]
         job_result["status"] = df_query["STATUS"][0]
 
         # add the query id to the job_result dict
-        # job_result["start_time"] = datetime.fromtimestamp(start_time).strftime("%d/%m/%Y %H:%M:%S.%f")[:-3]
         job_result["start_time"] = df_query["START_TIME"][0]
 
         # add the query id to the job_result dict
-        # job_result["end_time"] = datetime.fromtimestamp(end_time).strftime("%d/%m/%Y %H:%M:%S.%f")[:-3]
         job_result["end_time"] = df_query["END_TIME"][0]
 
         # job duration
-        # job_result["duration"] = end_time - start_time
         job_result["duration"] = df_query["DURATION"][0]
 
         return job_result
