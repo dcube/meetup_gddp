@@ -39,26 +39,23 @@ class ExecuteSQLPage(PageTemplate):
             st.session_state[f"{os.path.basename(__file__)}._run_mode"] = "PARALLEL"
         if f"{os.path.basename(__file__)}._input_mode" not in st.session_state:
             st.session_state[f"{os.path.basename(__file__)}._input_mode"] = "UPLOAD"
+        if f"{os.path.basename(__file__)}._warehouse_name" not in st.session_state:
+            st.session_state[f"{os.path.basename(__file__)}._warehouse_name"] = cls._warehouses["name"][0]
         if f"{os.path.basename(__file__)}._warehouse_size" not in st.session_state:
-            st.session_state[f"{os.path.basename(__file__)}._warehouse_size"] = cls._warehouses["warehouse_name_size"][0]
-
-        # get the size of the selected warehouse
-        sel_size: str = str(
-            cls._warehouses
-            .loc[cls._warehouses["warehouse_name_size"]
-                 == st.session_state[f"{os.path.basename(__file__)}._warehouse_size"], "size"].values[0]
+            # get the size of the selected warehouse
+            st.session_state[f"{os.path.basename(__file__)}._warehouse_size"] = str(
+                str(cls._warehouses.loc[cls._warehouses["name"]
+                                        == st.session_state[f"{os.path.basename(__file__)}._warehouse_name"]
+                                        ]["size"].values[0])
             )
-        st.session_state[f"{os.path.basename(__file__)}._target_warehouse_size"] = sel_size
 
     @classmethod
     def set_virtual_warehouses(cls) -> None:
         """list the virtual warehouse"""
         # get warehouses descriptions without need of compute
-        cls._sf_session.sql("SHOW WAREHOUSES").collect()
-        df_warehouses = cls._sf_session.sql("SELECT * FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))").to_pandas()
+        _ = cls._warehouses = cls._sf_session.sql("SHOW WAREHOUSES").collect()
 
-        # add calc column with wh name and size
-        df_warehouses["warehouse_name_size"] = df_warehouses["name"] + " (" + df_warehouses["size"] + ")"
+        df_warehouses = cls._sf_session.sql("SELECT * FROM table(RESULT_SCAN(LAST_QUERY_ID()))").to_pandas()
 
         # set the virtual warehouses list
         cls._warehouses = df_warehouses
@@ -66,37 +63,32 @@ class ExecuteSQLPage(PageTemplate):
     @classmethod
     def resize_virtual_warehouse(cls) -> None:
         """ resize the selected warehouse if needed """
-        # get the selected the warehouse and its current size
-        sel_warehouse: str = str(
+        # get the current size of the selected warehouse
+        wh_name = st.session_state[f"{os.path.basename(__file__)}._warehouse_name"]
+
+        cur_wh_size: str = str(
             cls._warehouses
-            .loc[cls._warehouses["warehouse_name_size"]
-                 == cls._warehouse_size, "name"].values[0]
+            .loc[cls._warehouses["name"] == wh_name]["size"].values[0]
             )
 
-        sel_size: str = str(
-            cls._warehouses
-            .loc[cls._warehouses["warehouse_name_size"]
-                 == cls._warehouse_size, "size"].values[0]
-            )
+        tgt_wh_size = st.session_state[f"{os.path.basename(__file__)}._warehouse_size"]
 
-        tgt_size = st.session_state[f"{os.path.basename(__file__)}._target_warehouse_size"]
-
-        if sel_size != tgt_size:
+        if cur_wh_size != tgt_wh_size:
             # change the warehouse size
             cls._sf_session.sql(
-                f"""ALTER WAREHOUSE {sel_warehouse}
-                SET WAREHOUSE_SIZE = '{tgt_size}'
+                f"""ALTER WAREHOUSE {wh_name}
+                SET WAREHOUSE_SIZE = '{tgt_wh_size}'
                 """
                 ).collect()
 
-        # refresh the dropdown for
 
     @classmethod
     def set_database_schemas(cls) -> None:
         """list the database schema"""
         # get warehouses descriptions without need of compute
-        cls._sf_session.sql("SHOW SCHEMAS LIKE 'TPCH_SF100%'").collect()
-        df_schemas = cls._sf_session.sql("SELECT * FROM TABLE(RESULT_SCAN(LAST_QUERY_ID()))").to_pandas()
+        _ = cls._sf_session.sql("SHOW SCHEMAS LIKE 'TPCH_SF100%'").collect()
+
+        df_schemas = cls._sf_session.sql("SELECT * FROM table(RESULT_SCAN(LAST_QUERY_ID()))").to_pandas()
 
         # add calc column with wh name and size
         df_schemas["database_schema"] = df_schemas["database_name"] + "." + df_schemas["name"]
@@ -162,24 +154,36 @@ class ExecuteSQLPage(PageTemplate):
                 end_time = time.time()
                 break
 
+        # get query execution information from the query_history
+        df_query = cls._sf_session.sql(
+            f"""
+            select
+                query_text, query_id, execution_status as status,
+                start_time, end_time, total_elapsed_time/1000 as duration
+            from
+                table(information_schema.query_history_by_session())
+            where query_id = '{job.query_id}'
+            """
+            ).to_pandas()
+
         # add the query id to the job_result dict
         job_result["query_id"] = job.query_id
 
         # add the query id to the job_result dict
-        job_result["status"] = str(
-            cls._sf_session._conn._conn.get_query_status(job.query_id)
-            ).split(".")[1]
+        # job_result["status"] = str(cls._sf_session._conn._conn.get_query_status(job.query_id)).split(".")[1]
+        job_result["status"] = df_query["STATUS"][0]
 
         # add the query id to the job_result dict
-        job_result["start_time"] = datetime.fromtimestamp(start_time)\
-            .strftime("%d/%m/%Y %H:%M:%S.%f")[:-3]
+        # job_result["start_time"] = datetime.fromtimestamp(start_time).strftime("%d/%m/%Y %H:%M:%S.%f")[:-3]
+        job_result["start_time"] = df_query["START_TIME"][0]
 
         # add the query id to the job_result dict
-        job_result["end_time"] = datetime.fromtimestamp(end_time)\
-            .strftime("%d/%m/%Y %H:%M:%S.%f")[:-3]
+        # job_result["end_time"] = datetime.fromtimestamp(end_time).strftime("%d/%m/%Y %H:%M:%S.%f")[:-3]
+        job_result["end_time"] = df_query["END_TIME"][0]
 
         # job duration
-        job_result["duration"] = end_time - start_time
+        # job_result["duration"] = end_time - start_time
+        job_result["duration"] = df_query["DURATION"][0]
 
         return job_result
 
@@ -200,17 +204,13 @@ class ExecuteSQLPage(PageTemplate):
                         ).collect()
 
                 # select the warehouse
-                sel_warehouse: str = str(
-                    cls._warehouses
-                    .loc[cls._warehouses["warehouse_name_size"]
-                         == cls._warehouse_size, "name"].values[0]
-                    )
+                sel_warehouse: str = st.session_state[f"{os.path.basename(__file__)}._warehouse_name"]
 
                 # check if warehouse must be suspended for cold start
                 if (cls._session_cold_start and
                     cls._warehouses.loc[
-                        cls._warehouses["warehouse_name_size"]
-                        == cls._warehouse_size, "state"].values[0]
+                        cls._warehouses["name"]
+                        == sel_warehouse, "state"].values[0]
                         != "SUSPENDED"):
 
                     # suspend the warehouse
@@ -307,19 +307,19 @@ class ExecuteSQLPage(PageTemplate):
             )
 
         # dropdown to select the warehouse to use to execute the queries
-        cls._warehouse_size = st.sidebar.selectbox(
+        cls._warehouse_name = st.sidebar.selectbox(
             "Select a warehouse",
-            options=cls._warehouses["warehouse_name_size"],
-            key=f"{os.path.basename(__file__)}._warehouse_size"
+            options=cls._warehouses["name"],
+            key=f"{os.path.basename(__file__)}._warehouse_name"
             )
 
         # dropdown to resize the warehouse
         # (default value is the size of the selected warehouse)
-        cls._target_warehouse_size = st.sidebar.selectbox(
+        cls._warehouse_size = st.sidebar.selectbox(
             "Choose warehouse size",
             options=["X-Small", "Small", "Medium", "Large"],
             on_change=cls.resize_virtual_warehouse(),
-            key=f"{os.path.basename(__file__)}._target_warehouse_size"
+            key=f"{os.path.basename(__file__)}._warehouse_size"
             )
 
     @classmethod
@@ -347,11 +347,15 @@ class ExecuteSQLPage(PageTemplate):
             if uploaded_files:
                 for uploaded_file in uploaded_files:
                     queries += uploaded_file.read().decode("utf-8")
+                if st.button("View code"):
+                    with st.expander(label="queries", expanded=True):
+                        st.code(body=queries, language="sql")
 
-        if st.button("Execute Queries"):
-            cls.run_batch_queries(queries)
-            # df_job_resuls = cls.run_batch_queries(queries)
-            # st.dataframe(df_job_resuls)
+        # show button [Execute queries] if queries is not empty
+        if len(queries) > 0:
+            if st.button("Execute Queries"):
+                # run queries when clicking
+                cls.run_batch_queries(queries)
 
 
 if __name__ == '__main__':

@@ -16,9 +16,8 @@ class HomePage(PageTemplate):
     @classmethod
     def display(cls) -> None:
         """ displaying this page by override the Template"""
-        st.markdown(
-            "<h1 style='text-align: center;'>TPC-H Data App</h1>",
-            unsafe_allow_html=True)
+        with open("readme.md", "r") as file:
+            st.markdown(file.read(), unsafe_allow_html=True)
 
 
 if __name__ == '__main__':
