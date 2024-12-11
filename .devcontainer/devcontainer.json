@@ -29,7 +29,10 @@
                 "ms-python.vscode-pylance",
                 "ms-python.pylint",
                 "ms-python.mypy-type-checker",
-                "ms-python.flake8"
+                "ms-python.flake8",
+                "snowflake.snowflake-vsc",
+                "ms-toolsai.jupyter",
+                "eeyore.yapf"
             ],
             "settings": {
                 "container.type": "app-python",
@@ -74,7 +77,10 @@
     },
     "remoteEnv": {
         "SF_AUTH_SOCKET_ADDR": "localhost", //fix snowflake externalbrowser loopback address
-        "SF_AUTH_SOCKET_REUSEPORT": "true" //try to reuse port
+        "SF_AUTH_SOCKET_REUSEPORT": "true", //try to reuse port
+        "AZURE_TENANT": "84e25fff-8a01-49fa-9024-ac157f75279d",
+        "AZURE_SUBSCRIPTION": "3bb86f05-349c-482a-9298-50ac194eb71c",
+        "AZURE_KEYVAULT": "akv-meetup-ggdp-frc"
 	},
     "remoteUser": "vscode",
     "postCreateCommand": "sudo chmod +x $WORKSPACE_PATH/.devcontainer/install.sh && $WORKSPACE_PATH/.devcontainer/install.sh"

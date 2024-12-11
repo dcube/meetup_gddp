@@ -166,9 +166,9 @@ class DagsMonitorPage(PageTemplate):
                                     "ROWS_PRODUCED", type, "{:,.0f}"))
             kpi[2].metric(f"{type}. Paritions scanned", get_kpi(df_fltrd, "PARTITIONS_SCANNED", type, "{:,.0f}"))
             kpi[3].metric(f"{type}. Partitions", get_kpi(df_fltrd, "PARTITIONS_TOTAL", type, "{:,.0f}"))
-            kpi[4].metric(f"{type}. $ Std. Ed.", get_kpi(df_fltrd, "COST_STANDARD", type, "{:,.2f}"))
-            kpi[5].metric(f"{type}. $ Entr. Ed.", get_kpi(df_fltrd, "COST_ENTERPRISE", type, "{:,.2f}"))
-            kpi[6].metric(f"{type}. $ BizCrit. Ed.", get_kpi(df_fltrd, "COST_BUSINESS_CRITICAL", type, "{:,.2f}"))
+            kpi[4].metric(f"{type}. € Std. Ed.", get_kpi(df_fltrd, "COST_STANDARD", type, "{:,.2f}"))
+            kpi[5].metric(f"{type}. € Entr. Ed.", get_kpi(df_fltrd, "COST_ENTERPRISE", type, "{:,.2f}"))
+            kpi[6].metric(f"{type}. € BizCrit. Ed.", get_kpi(df_fltrd, "COST_BUSINESS_CRITICAL", type, "{:,.2f}"))
 
     @classmethod
     def display_as_table(cls) -> None:

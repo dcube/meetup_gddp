@@ -5,10 +5,10 @@ from enum import Enum
 
 class Pricing(Enum):
     """ Credit cost by edition, platform, region in $USD """
-    STANDARD_AWS_EU_PARIS = 2.6
-    ENTERPRISE_AWS_EU_PARIS = 3.9
-    BUSINESSCRITICAL_AWS_EU_PARIS = 5.2
-    STORAGE_AWS_EU_PARIS = 24
+    STANDARD_AWS_EU_PARIS = 2.6 * 0.95
+    ENTERPRISE_AWS_EU_PARIS = 3.9 * 0.95
+    BUSINESSCRITICAL_AWS_EU_PARIS = 5.2 * 0.95
+    STORAGE_AWS_EU_PARIS = 24 * 0.95
 
     @classmethod
     def get_credit_price(cls, edition: str, provider_region: str) -> float:

@@ -69,15 +69,15 @@ class TasksMonitorPage(PageTemplate):
                     else:
                         df_filtr = df_filtr[df_filtr[cls._sidebar_filters[idx]["col"]]==selected_values]
 
-        if chart_selection:
-            # apply chart selection filters
-            df_chart_sel = PdDataFrame(PdDataFrame(cls._chart_state.selection)["param_1"].to_list())
-
-            if len(df_chart_sel) > 0:
-                df_filtr = df_filtr.merge(
-                    df_chart_sel,
-                    on=["TASK_SUBNAME", "WAREHOUSE_SIZE"],
-                    how="inner")
+        #if chart_selection:
+        #    # apply chart selection filters
+        #    df_chart_sel = PdDataFrame(PdDataFrame(cls._chart_state.selection)["param_1"].to_list())
+        #
+        #    if len(df_chart_sel) > 0:
+        #        df_filtr = df_filtr.merge(
+        #            df_chart_sel,
+        #            on=["TASK_SUBNAME", "WAREHOUSE_SIZE"],
+        #            how="inner")
 
         return df_filtr
 
@@ -88,26 +88,26 @@ class TasksMonitorPage(PageTemplate):
         df_fltrd = cls.apply_filters(True, False)
 
         # Define selection on click for TASK_SUBNAME and WAREHOUSE_SIZE
-        selection = alt.selection_point(fields=["TASK_SUBNAME", "WAREHOUSE_SIZE"], on="click")
+        cls._selection = alt.selection_point(fields=["TASK_SUBNAME", "WAREHOUSE_SIZE"], on="click", clear="dblclick")
 
         # Selector to choose the metric and the aggregate function to chart
-        cols_kpi_selector = st.columns([0.2, 0.1, 0.1, 0.2, 0.4])
+        cols_kpi_selector = st.columns([0.2, 0.2, 0.6])
         metric = cols_kpi_selector[0].selectbox(
             label="Choose the metric:",
             options=["TOTAL_ELAPSED_TIME_S", "EXECUTION_TIME_S", "QUEUED_OVERLOAD_TIME_S", "COMPILATION_TIME_S",
-                     "TOTAL_CREDITS", "COST_STANDARD", "COST_ENTERPRISE", "COST_BUSINESS_CRITICAL"],
+                    "TOTAL_CREDITS", "COST_STANDARD", "COST_ENTERPRISE", "COST_BUSINESS_CRITICAL"],
             key=f"{os.path.basename(__file__)}._sel_metric"
-            )
+        )
         agg_fx = cols_kpi_selector[1].selectbox(
-            label="Choose the metric:",
+            label="Choose the aggregate function:",
             options=["mean", "min", "max", "sum", "std"],
             key=f"{os.path.basename(__file__)}._sel_agg_fx"
-            )
+        )
 
-        # chart dag runs stats
-        chart_dags = (
+        # Create the bar chart
+        chart = (
             alt.Chart(df_fltrd)
-            .mark_bar()  # type: ignore
+            .mark_bar()
             .encode(
                 x=alt.X("TASK_SUBNAME:N", title=None,
                         axis=alt.Axis(
@@ -118,43 +118,60 @@ class TasksMonitorPage(PageTemplate):
                 y=alt.Y(f"{agg_fx}({metric}):Q", title=None),
                 xOffset=alt.XOffset("WAREHOUSE_SIZE:N", sort=["Medium", "Large", "X-Large"]),
                 color=alt.condition(
-                    selection,
+                    cls._selection,
                     alt.Color(
                         "WAREHOUSE_SIZE:N",
                         title="Warehouse size",
                         scale=alt.Scale(
                             domain=["Medium", "Large", "X-Large"],
                             range=["#872D60", "#E69B43", "#DB5346"]
-                            )
-                        ),
-                    alt.value("lightgray")  # Gray color for unselected bars
+                        )
                     ),
+                    alt.value("lightgray")  # Gray color for unselected bars
+                ),
                 tooltip=[
-                        alt.Tooltip("TASK_SUBNAME:N", title="Task"),
-                        alt.Tooltip("WAREHOUSE_SIZE:N", title="Warehouse size"),
-                        alt.Tooltip("mean(TOTAL_ELAPSED_TIME_S):Q", title="Mean Total elapsed time (s)", format=".4f"),
-                        alt.Tooltip("mean(COMPILATION_TIME_S):Q", title="Mean Compilation time (s)", format=".4f"),
-                        alt.Tooltip("mean(QUEUED_OVERLOAD_TIME_S):Q", title="Mean Queued overload time (s)", format=".4f"),
-                        alt.Tooltip("mean(EXECUTION_TIME_S):Q", title="Mean Execution time (s)", format=".4f"),
-                        alt.Tooltip("mean(ROWS_PRODUCED):Q", title="Mean Rows Produced", format=".0f"),
-                        alt.Tooltip("mean(PARTITIONS_SCANNED)/mean(PARTITIONS_TOTAL):Q", title="Men Partitions Scanned Ratio", format=".4f"),
-                        alt.Tooltip("mean(COST_STANDARD):Q", title="Mean Cost Standard Ed.", format=".4f"),
-                        alt.Tooltip("mean(COST_ENTERPRISE):Q", title="Mean Cost Enterprise Ed.", format=".4f"),
-                        alt.Tooltip("mean(COST_BUSINESS_CRITICAL):Q", title="Mean Cost Business Crit. Ed.", format=".4f")
-                    ]
+                    alt.Tooltip("TASK_SUBNAME:N", title="Task"),
+                    alt.Tooltip("WAREHOUSE_SIZE:N", title="Warehouse size"),
+                    alt.Tooltip("mean(TOTAL_ELAPSED_TIME_S):Q", title="Mean Total elapsed time (s)", format=".4f"),
+                    alt.Tooltip("mean(COMPILATION_TIME_S):Q", title="Mean Compilation time (s)", format=".4f"),
+                    alt.Tooltip("mean(QUEUED_OVERLOAD_TIME_S):Q", title="Mean Queued overload time (s)", format=".4f"),
+                    alt.Tooltip("mean(EXECUTION_TIME_S):Q", title="Mean Execution time (s)", format=".4f"),
+                    alt.Tooltip("mean(TOTAL_CREDITS):Q", title="Mean € Total Credits", format=".0f"),
+                    alt.Tooltip("mean(COST_STANDARD):Q", title="Mean € Cost Standard Ed.", format=".4f"),
+                    alt.Tooltip("mean(COST_ENTERPRISE):Q", title="Mean € Cost Enterprise Ed.", format=".4f"),
+                    alt.Tooltip("mean(COST_BUSINESS_CRITICAL):Q", title="Mean € Cost Business Crit. Ed.", format=".4f")
+                ]
             )
-            .add_params(selection)
+            .add_params(cls._selection)
         )
 
-        # display the chart
-        cls._chart_state = st.altair_chart(
-            chart_dags,
-            use_container_width=True,
-            on_select="rerun")
+        # Create a separate chart for text labels
+        text_label = alt.Chart(df_fltrd).mark_text(
+            align='center',
+            baseline='middle',
+            dy=-10,
+            fontSize=10,
+            color="white"
+        ).encode(
+            x=alt.X("TASK_SUBNAME:N"),
+            y=alt.Y(f"{agg_fx}({metric}):Q"),
+            xOffset=alt.XOffset("WAREHOUSE_SIZE:N", sort=["Medium", "Large", "X-Large"]),
+            text=alt.Text(f"{agg_fx}({metric}):Q", format=".1f")
+        )
+
+        final_chart = alt.layer(chart, text_label).resolve_scale(y='shared')
+
+        # Display the chart
+        cls._chart_state = st.altair_chart(final_chart, use_container_width=True)
+
+        if st.button("refresh", on_click=cls.display_as_table()):
+            pass
 
     @classmethod
     def display_as_table(cls) -> None:
         """ View the dataset filtered as a table """
+        st.write(cls._selection)
+
         # apply the filters (sidebar + chart selection)
         df_fltrd = cls.apply_filters(True, True)
 

@@ -311,7 +311,7 @@ class ExecuteSQLPage(PageTemplate):
         # (default value is the size of the selected warehouse)
         cls._warehouse_size = st.sidebar.selectbox(
             "Choose warehouse size",
-            options=["X-Small", "Small", "Medium", "Large"],
+            options=["X-Small", "Small", "Medium", "Large", "X-Large"],
             on_change=cls.resize_virtual_warehouse(),
             key=f"{os.path.basename(__file__)}._warehouse_size"
             )
