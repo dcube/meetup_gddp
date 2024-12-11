@@ -2,7 +2,7 @@ from snowflake.snowpark import Session, DataFrame
 from snowflake.snowpark.exceptions import SnowparkSQLException
 
 
-def table_exits(session: Session, tbl_name: str) -> bool:
+def table_exists(session: Session, tbl_name: str) -> bool:
     """ try to get schema from table """
     df = session.table(tbl_name)
     try:
@@ -24,7 +24,7 @@ def load_csv(session: Session, tbl_name: str, fmt_name: str, location: str) -> D
 
     # save the data frame as a table
     df.write.mode(
-        "overwrite" if not table_exits(session, tbl_name) else "truncate"
+        "overwrite" if not table_exists(session, tbl_name) else "truncate"
     ).save_as_table(tbl_name)
 
     # Return value will appear in the Results tab.
