@@ -1,0 +1,127 @@
+USE ROLE SYSADMIN;
+
+------------------------------------------------------------------------------
+-- Create the database for the domain &{domain}
+------------------------------------------------------------------------------
+CREATE DATABASE IF NOT EXISTS &{domain};
+USE DATABASE &{domain};
+
+------------------------------------------------------------------------------
+-- Create the data product &{domain}.UTILS
+------------------------------------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS UTILS;
+  -- Technical role for owners on schema &{domain}.UTILS
+  USE ROLE SECURITYADMIN;
+
+  -- create technical roles
+  CREATE ROLE TR_&{domain}_UTILS_OWNR;
+    -- defining privileges
+    GRANT USAGE ON DATABASE &{domain} TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT USAGE ON SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE STAGES IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE FILE FORMATS IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE GIT REPOSITORIES IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE PROCEDURES IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE FUNCTIONS IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
+
+  -- Technical role for consumers on schema &{domain}.UTILS
+  CREATE ROLE TR_&{domain}_UTILS_CONSR;
+    -- defining privileges
+    GRANT USAGE ON DATABASE &{domain} TO ROLE TR_&{domain}_UTILS_CONSR;
+    GRANT USAGE ON SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_CONSR;
+    GRANT USAGE ON ALL FUTURE STAGES IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_CONSR;
+    GRANT USAGE ON ALL FUTURE FILE FORMATS IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_CONSR;
+    GRANT USAGE ON ALL FUTURE GIT REPOSITORIES IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_CONSR;
+    GRANT USAGE ON ALL FUTURE PROCEDURES IN &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_CONSR;
+
+  USE ROLE SYSADMIN;
+
+  -- create stages
+  -- create external stages on s3 buckets
+  CREATE STAGE IF NOT EXISTS &{domain}.UTILS.LANDING
+    STORAGE_INTEGRATION = &{domain}_S3
+    URL = '&{s3_landing_bucket}';
+
+  -- create file formats
+  -- create file format for CSV with | column delimiter
+  CREATE FILE FORMAT IF NOT EXISTS &{domain}.UTILS.CSV_FMT1
+      TYPE = 'csv'
+      FIELD_DELIMITER = '|'
+      FIELD_OPTIONALLY_ENCLOSED_BY = '"'
+      DATE_FORMAT = 'YYYY-MM-DD'
+      PARSE_HEADER = true;
+
+  -- create git repos
+  -- create git repo
+  CREATE GIT REPOSITORY IF NOT EXISTS &{domain}.UTILS.GIT_REPO
+    API_INTEGRATION = &{domain}_GIT
+    ORIGIN = '&{git_repo_uri}';
+
+  -- fetch the git repo to update it
+  ALTER GIT REPOSITORY &{domain}.UTILS.GIT_REPO FETCH;
+
+  -- create procedures
+  -- create the generic stored procedure to load raw data from csv
+  CREATE OR REPLACE PROCEDURE &{domain}.UTILS.LOAD_FROM_CSV(tbl_config variant)
+      returns table()
+      language python
+      runtime_version='3.11'
+      packages=('snowflake-snowpark-python')
+      imports=('@&{domain}.UTILS.GIT_REPO/&{git_ref}/snowpark/dcube/raw_tables.py')
+      handler='raw_tables.load_from_csv';
+
+------------------------------------------------------------------------------
+-- Create the data products &{domain}.TPCH_SF100 & TPCH_SF100_ICEBERG
+------------------------------------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
+
+  -- create technical roles
+  USE ROLE SECURITYADMIN;
+  -- Technical role for owners on schema &{domain}.TPCH_SF100
+  CREATE ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE TABLES IN &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE DYNAMIC TABLES IN &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE VIEWS IN &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    GRANT OWNERSHIP ON ALL FUTURE TASKS IN &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+
+  -- Technical role for reader on schema &{domain}.TPCH_SF100
+  CREATE ROLE TR_&{domain}_TPCH_SF100_READR;
+    GRANT SELECT ON ALL FUTURE TABLES IN &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_READR;
+    GRANT SELECT ON ALL FUTURE DYNAMIC TABLES IN &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_READR;
+    GRANT SELECT ON ALL FUTURE VIEWS IN &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_READR;
+
+  USE ROLE SYSADMIN;
+
+  -- Deploy tpch tables
+  EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/tables/tables.sql
+  USING (domain => '&{domain}', schema => 'TPCH_SF100')
+  DRY_RUN = &{dry_run};
+
+  -- Deploy tpch dags
+  -- load dag
+  EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_load_parallel.sql
+  USING (domain => '&{domain}', schema => 'TPCH_SF100')
+  DRY_RUN = &{dry_run};
+
+  -- analytics dags
+  EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_nlitx_parallel.sql
+  USING (domain => '&{domain}', schema => 'TPCH_SF100', git_ref => '&{git_ref}')
+  DRY_RUN = &{dry_run};
+
+-- create domain business roles
+USE ROLE SECURITYADMIN;
+-- create role ops for the domain
+CREATE ROLE TB_&{domain}_OPS;
+  GRANT ROLE TB_&{domain}_OPS TO ROLE SYSADMIN;
+  GRANT ROLE TR_&{domain}_UTILS_OWNR TO ROLE TB_&{domain}_OPS;
+  GRANT ROLE TR_&{domain}_TPCH_SF100_OWNR TO ROLE TB_&{domain}_OPS;
+  GRANT USAGE ON WAREHOUSE LOAD TO ROLE TB_&{domain}_OPS;
+  GRANT USAGE ON WAREHOUSE TRANSFORM TO ROLE TB_&{domain}_OPS;
+
+-- create role analysts for the domain
+CREATE ROLE TB_&{domain}_ANALYSTS;
+  GRANT ROLE TB_&{domain}_ANALYSTS TO ROLE SYSADMIN;
+  GRANT ROLE TR_&{domain}_UTILS_CONSR TO ROLE TB_&{domain}_OPS;
+  GRANT ROLE TR_&{domain}_TPCH_SF100_READR TO ROLE TB_&{domain}_OPS;
+
+USE ROLE SYSADMIN;
