@@ -1,4 +1,4 @@
-snowflake-snowpark-python==1.23
-snowflake-cli-labs==2.6.1
+snowflake-snowpark-python==1.26
+snowflake-cli-labs==3.2
 streamlit==1.35.0
 plotly==5.24.1

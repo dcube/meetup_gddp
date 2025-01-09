@@ -10,13 +10,14 @@ CREATE SCHEMA IF NOT EXISTS UTILS;
   USE ROLE SECURITYADMIN;
 
   -- create technical roles
+  -- create owner role
   CREATE ROLE IF NOT EXISTS TR_&{domain}_UTILS_OWNR;
     -- defining privileges
     GRANT USAGE ON DATABASE &{domain} TO ROLE TR_&{domain}_UTILS_OWNR;
     GRANT USAGE ON SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
-    GRANT USAGE ON INTEGRATION &{domain}_S3 TO ROLE FR_&{domain}_OPS;
-    GRANT USAGE ON INTEGRATION &{domain}_GIT TO ROLE FR_&{domain}_OPS;
-    GRANT USAGE ON VOLUME &{domain}_S3_LAKEHOUSE TO ROLE FR_&{domain}_OPS;
+    GRANT USAGE ON INTEGRATION &{domain}_S3 TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT USAGE ON INTEGRATION &{domain}_GIT TO ROLE TR_&{domain}_UTILS_OWNR;
+    GRANT USAGE ON VOLUME &{domain}_S3_LAKEHOUSE TO ROLE TR_&{domain}_UTILS_OWNR;
     EXECUTE IMMEDIATE
     $$
     BEGIN
@@ -24,7 +25,6 @@ CREATE SCHEMA IF NOT EXISTS UTILS;
       GRANT OWNERSHIP ON FUTURE FILE FORMATS IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
       GRANT OWNERSHIP ON FUTURE GIT REPOSITORIES IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
       GRANT OWNERSHIP ON FUTURE PROCEDURES IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
-      GRANT OWNERSHIP ON FUTURE FUNCTIONS IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OWNR;
     EXCEPTION
       WHEN STATEMENT_ERROR THEN
             RETURN OBJECT_CONSTRUCT('EXCEPTION', 'STATEMENT_ERROR',
@@ -39,6 +39,37 @@ CREATE SCHEMA IF NOT EXISTS UTILS;
 
     -- role inherentence to functional roles
     GRANT ROLE TR_&{domain}_UTILS_OWNR TO ROLE FR_&{domain}_OPS;
+
+    -- create consumer role
+    CREATE ROLE IF NOT EXISTS TR_&{domain}_UTILS_OPER;
+    -- defining privileges
+    GRANT USAGE ON DATABASE &{domain} TO ROLE TR_&{domain}_UTILS_OPER;
+    GRANT USAGE ON SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OPER;
+    GRANT USAGE ON INTEGRATION &{domain}_S3 TO ROLE TR_&{domain}_UTILS_OPER;
+    GRANT USAGE ON INTEGRATION &{domain}_GIT TO ROLE TR_&{domain}_UTILS_OPER;
+    GRANT USAGE ON VOLUME &{domain}_S3_LAKEHOUSE TO ROLE TR_&{domain}_UTILS_OPER;
+    EXECUTE IMMEDIATE
+    $$
+    BEGIN
+      GRANT USAGE ON FUTURE STAGES IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OPER;
+      GRANT USAGE ON FUTURE FILE FORMATS IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OPER;
+      GRANT READ  ON FUTURE GIT REPOSITORIES IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OPER;
+      GRANT USAGE ON FUTURE PROCEDURES IN SCHEMA &{domain}.UTILS TO ROLE TR_&{domain}_UTILS_OPER;
+    EXCEPTION
+      WHEN STATEMENT_ERROR THEN
+            RETURN OBJECT_CONSTRUCT('EXCEPTION', 'STATEMENT_ERROR',
+                            'SQLCODE', sqlcode,
+                            'SQLERRM', sqlerrm,
+                            'SQLSTATE', sqlstate,
+                            'TYPE', 'warning');
+        WHEN OTHER THEN
+            RAISE;
+    END;
+    $$;
+
+
+    -- role inherentence to functional roles
+    -- N/A
 
   USE ROLE SYSADMIN;
 

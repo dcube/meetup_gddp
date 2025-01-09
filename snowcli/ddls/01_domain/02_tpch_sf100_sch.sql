@@ -12,6 +12,13 @@ CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
   -- Technical role for owners on schema TPCH_SF100
   CREATE ROLE IF NOT EXISTS TR_&{domain}_TPCH_SF100_OWNR;
     -- defining privileges
+    GRANT USAGE ON DATABASE &{domain} TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    GRANT USAGE ON SCHEMA &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    GRANT USAGE ON WAREHOUSE LOAD TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    GRANT USAGE ON WAREHOUSE ANALYSIS TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    USE ROLE ACCOUNTADMIN;
+    GRANT EXECUTE TASK ON ACCOUNT TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
+    USE ROLE SECURITYADMIN;
     EXECUTE IMMEDIATE
     $$
     BEGIN
@@ -30,12 +37,16 @@ CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
             RAISE;
     END;
     $$;
+    -- technical role inheritance
+    GRANT ROLE TR_&{domain}_UTILS_OPER TO ROLE TR_&{domain}_TPCH_SF100_OWNR;
     -- inheritance to functional roles
     GRANT ROLE TR_&{domain}_TPCH_SF100_OWNR TO ROLE FR_&{domain}_OPS;
 
   -- Technical role for reader on schema &{domain}.TPCH_SF100
   CREATE ROLE IF NOT EXISTS TR_&{domain}_TPCH_SF100_READR;
     -- defining privileges
+    GRANT USAGE ON DATABASE &{domain} TO ROLE TR_&{domain}_TPCH_SF100_READR;
+    GRANT USAGE ON SCHEMA &{domain}.TPCH_SF100 TO ROLE TR_&{domain}_TPCH_SF100_READR;
     EXECUTE IMMEDIATE
     $$
     BEGIN
@@ -60,16 +71,16 @@ CREATE SCHEMA IF NOT EXISTS TPCH_SF100;
 
   -- Deploy tpch tables
   EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/tables/tables.sql
-  USING (domain => '&{domain}', schema => 'TPCH_SF100')
+  USING (domain => '&{domain}', schema => 'TPCH_SF100', is_iceberg => False)
   DRY_RUN = &{dry_run};
 
   -- Deploy tpch dags
   -- load dag
   EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_load_parallel.sql
-  USING (domain => '&{domain}', schema => 'TPCH_SF100')
+  USING (domain => '&{domain}', schema => 'TPCH_SF100', schedule => 'USING CRON 0 */6 * * * Europe/Paris')
   DRY_RUN = &{dry_run};
 
   -- analytics dags
-  EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_nlitx_parallel.sql
-  USING (domain => '&{domain}', schema => 'TPCH_SF100', git_ref => '&{git_ref}')
-  DRY_RUN = &{dry_run};
+  -- EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_nlitx_parallel.sql
+  -- USING (domain => '&{domain}', schema => 'TPCH_SF100', git_ref => '&{git_ref}', schedule => 'USING CRON 15 */6 * * * Europe/Paris')
+  -- DRY_RUN = &{dry_run};

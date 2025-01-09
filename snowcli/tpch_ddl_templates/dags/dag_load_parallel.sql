@@ -11,6 +11,7 @@ USE ROLE SYSADMIN;
 -- Create the root task
 CREATE OR ALTER TASK {{ domain }}.{{ schema }}.{{ dag }}
     WAREHOUSE=LOAD
+    SCHEDULE = '{{ schedule }}'
     AS
     SELECT 'dummy';
 
@@ -37,4 +38,5 @@ CREATE OR ALTER TASK {{ domain }}.{{ schema }}.{{ dag }}
     -- Resume child tasks to enable them
     ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{dag}}$TRUNC_{{ table }} RESUME;
     ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{dag}}$COPY_{{ table }} RESUME;
+    ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{dag}} RESUME;
 {% endfor %}

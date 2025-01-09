@@ -7,7 +7,7 @@
 -- create snowflake internal table or iceberg tables
 -- depending on the schema name
 {% set create_stmt = "CREATE TABLE" %}
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
     {% set create_stmt = "CREATE ICEBERG TABLE" %}
 {% endif %}
 
@@ -22,7 +22,7 @@
     C_MKTSEGMENT VARCHAR,
     C_COMMENT    VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/CUSTOMER'
@@ -47,7 +47,7 @@ BASE_LOCATION = '{{ schema }}/CUSTOMER'
     L_SHIPMODE       VARCHAR,
     L_COMMENT        VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/LINEITEM'
@@ -60,7 +60,7 @@ BASE_LOCATION = '{{ schema }}/LINEITEM'
     N_REGIONKEY INT,
     N_COMMENT   VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/NATION'
@@ -78,7 +78,7 @@ BASE_LOCATION = '{{ schema }}/NATION'
     O_SHIPPRIORITY  INT,
     O_COMMENT       VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/ORDERS'
@@ -92,7 +92,7 @@ BASE_LOCATION = '{{ schema }}/ORDERS'
     PS_SUPPLYCOST  NUMBER(15, 2),
     PS_COMMENT     VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/PARTSUPP'
@@ -110,7 +110,7 @@ BASE_LOCATION = '{{ schema }}/PARTSUPP'
     P_RETAILPRICE  NUMBER(15, 2),
     P_COMMENT      VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/PART'
@@ -122,7 +122,7 @@ BASE_LOCATION = '{{ schema }}/PART'
     R_NAME      VARCHAR,
     R_COMMENT   VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/REGION'
@@ -138,7 +138,7 @@ BASE_LOCATION = '{{ schema }}/REGION'
     S_ACCTBAL   NUMBER(15, 2),
     S_COMMENT   VARCHAR
 )
-{% if schema == "TPCH_SF100_ICEBERG" %}
+{% if is_iceberg %}
 CATALOG = 'SNOWFLAKE'
 EXTERNAL_VOLUME = '{{ domain }}_S3_LAKEHOUSE'
 BASE_LOCATION = '{{ schema }}/SUPPLIER'
