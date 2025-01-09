@@ -41,5 +41,7 @@ CREATE OR ALTER TASK {{ domain }}.{{ schema }}.{{ dag }}
     -- Resume child tasks to enable them
     ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{dag}}$TRUNC_{{ table }} RESUME;
     ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{dag}}$COPY_{{ table }} RESUME;
-    ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{dag}} RESUME;
 {% endfor %}
+
+-- resume the root task
+ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{dag}} RESUME;
