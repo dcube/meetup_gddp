@@ -7,6 +7,9 @@
 
 USE ROLE SYSADMIN;
 
+-- Supend the root task if exists before altering it
+ALTER TASK IF EXISTS {{ domain }}.{{ schema }}.{{ dag }} SUSPEND;
+
 -- Create the root task
 CREATE OR ALTER TASK {{ domain }}.{{ schema }}.{{ dag }}
     WAREHOUSE=ANALYSIS
