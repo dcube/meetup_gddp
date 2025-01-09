@@ -85,4 +85,3 @@ CREATE SCHEMA IF NOT EXISTS TPCH_SF100_ICEBERG;
   -- EXECUTE IMMEDIATE FROM @&{domain}.UTILS.GIT_REPO/&{git_ref}/snowcli/tpch_ddl_templates/dags/dag_nlitx_parallel.sql
   -- USING (domain => '&{domain}', schema => 'TPCH_SF100_ICEBERG', git_ref => '&{git_ref}', schedule => 'USING CRON 45 */6 * * * Europe/Paris')
   -- DRY_RUN = &{dry_run};
-  */
