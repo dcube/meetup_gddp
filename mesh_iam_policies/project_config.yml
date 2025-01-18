@@ -1,0 +1,136 @@
+data_contract:
+  version: 0.1.0
+  kind: mesh_manager
+  provider: snowflake
+  sql_template_folder: sql_templates
+
+  domains:
+    - name: fin
+      decription: finance
+    - name: sls
+      decription: sales
+    - name: mkt
+      decription: marketing
+
+  environments:
+    - name: dev
+      decription: for development
+    - name: uat
+      decription: for user acceptance testing
+    - name: prd
+      decription: for production
+
+  managed_db_role_schema_objects:
+    - stages
+    - file formats
+    - pipes
+    - streams
+    - TASKS
+    - TABLES
+    - DYNAMIC TABLES
+    - EVENT TABLES
+    - EXTERNAL TABLES
+    - ICEBERG TABLES
+    - views
+    - materialized views
+    - sequences
+    - functions
+    - procedures
+    - alerts
+    - services
+    - git repositories
+    - image repositories
+    - models
+
+  # governance_objects:
+    # - aggregation policies
+    # - authentication policies
+    # - masking policies
+    # - packages policies
+    # - password policies
+    # - network rules
+    # - projection policies
+    # - row access policies
+    # - secrets
+    # - session policies
+    # - tags
+
+  database_roles:
+    - name: read
+      comment: for data readers
+      schemas_privileges:
+        - usage
+      schema_objects_privileges:
+        stages: ["usage"]
+        file formats: ["usage"]
+        tables: ["select"]
+        dynamic tables: ["select"]
+        event tables: ["select"]
+        external tables: ["select"]
+        iceberg tables: ["select"]
+        views: ["select"]
+        materialized views: ["select"]
+        functions: ["usage"]
+        procedures: ["usage"]
+        git repositories: ["read"]
+
+    - name: write
+      comment: for data readers
+      schemas_privileges:
+        - usage
+      schema_objects_privileges:
+        stages: ["usage"]
+        file formats: ["usage"]
+        tables: ["select", "insert", "update", "delete", "truncate"]
+        dynamic tables: ["select"]
+        event tables: ["select"]
+        external tables: ["select"]
+        iceberg tables: ["select", "insert", "update", "delete", "truncate"]
+        views: ["select"]
+        materialized views: ["select"]
+        functions: ["usage"]
+        procedures: ["usage"]
+        git repositories: ["read", "write"]
+
+    - name: operate
+      comment: for data operators
+      schemas_privileges:
+        - usage
+      schema_objects_privileges:
+        stages: ["all privileges"]
+        file formats: ["all privileges"]
+        pipes: ["all privileges"]
+        streams: ["all privileges"]
+        tasks: ["all privileges"]
+        tables: ["all privileges"]
+        dynamic tables: ["all privileges"]
+        event tables: ["all privileges"]
+        external tables: ["all privileges"]
+        iceberg tables: ["all privileges"]
+        views: ["all privileges"]
+        materialized views: ["all privileges"]
+        sequences: ["all privileges"]
+        functions: ["all privileges"]
+        procedures: ["all privileges"]
+        alerts: ["all privileges"]
+        services: ["all privileges"]
+        git repositories: ["all privileges"]
+        image repositories: ["all privileges"]
+        models: ["all privileges"]
+
+  user_roles:
+    - data_engineers:
+      operator: ["dev", "uat"]
+      reader: ["prod"]
+
+    - name: analysts
+      reader: ["dev", "uat", "prod"]
+
+    - name: scientist
+      reader: ["dev", "uat", "prod"]
+
+    - name: opreator
+      operator: ["dev", "uat", "prod"]
+
+    - name: consumers
+      comment: no direct access only via internal data products
