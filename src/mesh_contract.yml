@@ -1,0 +1,156 @@
+data_contract:
+  version: 0.1.0
+  kind: mesh_manager
+  provider: snowflake
+
+  mesh_admin_users:
+    - fredbrossard
+
+  domains:
+    - name: fin
+      comment: finance
+    - name: sls
+      comment: sales
+    - name: mkt
+      comment: marketing
+    - name: pch
+      comment: purchase
+    - name: man
+      comment: manufacturing
+    - name: spy
+      comment: supply
+
+  domain_multiples:
+    - name: dev
+      comment: environmnent for development
+    - name: uat
+      comment: user acceptance testing
+    - name: prd
+      comment: environnment for production
+    - name: lab
+      comment: environment for labs
+
+  # resource_monitors:
+
+  warehouses:
+    - name: dev
+      comment: "for dev and test"
+    - name: elt
+      comment: "to load and transform data"
+    - name: bi
+      comment: "to refresh pbi reports"
+    - name: xplore
+      comment: "for adhoc analysis"
+
+  managed_db_role_schema_objects:
+    - stages
+    - file formats
+    - pipes
+    - streams
+    - tasks
+    - tables
+    - dynamic tables
+    - event tables
+    - external tables
+    - iceberg tables
+    - views
+    - materialized views
+    - sequences
+    - functions
+    - procedures
+    - alerts
+    - services
+    - git repositories
+    - image repositories
+    - models
+
+  # governance_objects:
+    # - aggregation policies
+    # - authentication policies
+    # - masking policies
+    # - packages policies
+    # - password policies
+    # - network rules
+    # - projection policies
+    # - row access policies
+    # - secrets
+    # - session policies
+    # - tags
+
+  database_roles:
+    - name: read
+      comment: for data readers
+      schemas_privileges:
+        - usage
+      schema_objects_privileges:
+        stages: ["usage"]
+        file formats: ["usage"]
+        tables: ["select"]
+        dynamic tables: ["select"]
+        event tables: ["select"]
+        external tables: ["select"]
+        iceberg tables: ["select"]
+        views: ["select"]
+        materialized views: ["select"]
+        functions: ["usage"]
+        procedures: ["usage"]
+        git repositories: ["read"]
+
+    - name: write
+      comment: for data readers
+      schemas_privileges:
+        - usage
+      schema_objects_privileges:
+        stages: ["usage"]
+        file formats: ["usage"]
+        tables: ["select", "insert", "update", "delete", "truncate"]
+        dynamic tables: ["select"]
+        event tables: ["select"]
+        external tables: ["select"]
+        iceberg tables: ["select", "insert", "update", "delete", "truncate"]
+        views: ["select"]
+        materialized views: ["select"]
+        functions: ["usage"]
+        procedures: ["usage"]
+        git repositories: ["read", "write"]
+
+    - name: operate
+      comment: for data operators
+      schemas_privileges:
+        - usage
+      schema_objects_privileges:
+        stages: ["all privileges"]
+        file formats: ["all privileges"]
+        pipes: ["all privileges"]
+        streams: ["all privileges"]
+        tasks: ["all privileges"]
+        tables: ["all privileges"]
+        dynamic tables: ["all privileges"]
+        event tables: ["all privileges"]
+        external tables: ["all privileges"]
+        iceberg tables: ["all privileges"]
+        views: ["all privileges"]
+        materialized views: ["all privileges"]
+        sequences: ["all privileges"]
+        functions: ["all privileges"]
+        procedures: ["all privileges"]
+        alerts: ["all privileges"]
+        services: ["all privileges"]
+        git repositories: ["all privileges"]
+        image repositories: ["all privileges"]
+        models: ["all privileges"]
+
+  domain_roles:
+    - data_engineers:
+        operate: ["dev", "uat", "lab"]
+        read: [prod]
+
+    - data_analysts:
+        read: ["prod"]
+
+    - data_scientists:
+        read: ["prod"]
+        operate: ["lab"]
+
+    - data_ops:
+        operate: ["dev", "uat", "prod", "lab"]

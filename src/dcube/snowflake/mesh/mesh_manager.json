@@ -1,0 +1,117 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+      "data_contract": {
+        "type": "object",
+        "properties": {
+          "version": { "type": "string" },
+          "kind": { "type": "string" },
+          "provider": { "type": "string", "enum": ["snowflake"] },
+          "mesh_admin_users": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "domains": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "comment": { "type": "string" }
+              },
+              "required": ["name"]
+            }
+          },
+          "domain_multiples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "comment": { "type": "string" }
+              },
+              "required": ["name"]
+            }
+          },
+          "warehouses": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "comment": { "type": "string" },
+                "warehouse_type": {
+                    "type": "string",
+                    "enum": ["standard", "snowpark-optimized"],
+                    "default": "standard"
+                },
+                "warehouse_size": {
+                    "type": "string",
+                    "enum": [
+                        "xsmall", "small", "medium", "large", "xlarge", "xxlarge",
+                        "xxxlarge", "x4large", "x5large", "x6large"
+                        ],
+                    "default": "xsmall"
+                },
+                "min_cluster_count": { "type": "integer", "minimum": 1, "maximum": 10, "default": 1 },
+                "max_cluster_count": { "type": "integer", "minimum": 1, "maximum": 10, "default": 1 },
+                "scaling_policy": { "type": "string", "enum": ["standard", "economy"], "default": "standard" },
+                "auto_suspend": { "type": "integer", "minimum": 60, "default": 60 },
+                "auto_resume": { "type": "boolean", "default": true },
+                "initially_suspended": { "type": "boolean", "default": true },
+                "enable_query_acceleration": { "type": "boolean", "default": false },
+                "query_acceleration_max_scale_factor": { "type": "integer", "minimum": 0, "maximum": 100, "default": 0 },
+                "resource_constraint": {
+                    "type": "string",
+                    "enum": [
+                        "memory_1x", "memory_1x_x86", "memory_16x", "memory_16x_x86", "memory_64x", "memory_64x_x86"
+                        ]
+                    }
+              },
+              "required": ["name"]
+            }
+          },
+          "managed_db_role_schema_objects": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "stages", "file formats", "pipes", "streams", "tasks", "tables",
+                    "dynamic tables", "event tables", "external tables", "iceberg tables",
+                    "views", "materialized views", "sequences", "functions", "procedures",
+                    "alerts", "services", "git repositories", "image repositories", "models"
+                    ]
+                }
+          },
+          "database_roles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "comment": { "type": "string" },
+                "schemas_privileges": {
+                    "type": "array",
+                    "items": { "type": "string", "enum": ["usage"] }
+                },
+                "schema_objects_privileges": {
+                    "type": "object",
+                    "patternProperties": {
+                        "^[a-zA-Z0-9_ ]+$": {
+                            "type": "array",
+                            "items": { "type": "string" }
+                        }
+                    },
+                    "additionalProperties": false
+                }
+              },
+              "required": ["name", "schemas_privileges", "schema_objects_privileges"]
+            }
+          }
+        },
+        "required": ["version", "kind", "provider", "mesh_admin_users", "domains", "domain_multiples", "warehouses", "managed_db_role_schema_objects", "database_roles"]
+      }
+    },
+    "required": ["data_contract"]
+  }

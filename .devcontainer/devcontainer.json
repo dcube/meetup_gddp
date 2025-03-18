@@ -1,5 +1,5 @@
 {
-    "name": "Snowflake",
+    "name": "snow-mesh-manager",
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/app,type=bind",
 	"workspaceFolder": "/workspaces/app",
 	"build": {
@@ -29,7 +29,7 @@
                 "ms-python.vscode-pylance",
                 "ms-python.pylint",
                 "ms-python.mypy-type-checker",
-                "ms-python.flake8",
+                "ms-python.ruff",
                 "snowflake.snowflake-vsc",
                 "ms-toolsai.jupyter",
                 "eeyore.yapf"
@@ -61,13 +61,11 @@
                 "editor.formatOnSave": true,
                 "editor.formatOnType": false,
                 "mypy-type-checker.args": [],
-                "python.dependencyManager": "pip",
-                "python.pip.extraIndexUrl": null,
+                "_python.dependencyManager": "pip",
+                "_python.pip.extraIndexUrl": null,
                 "python.testing.coverageEnabled": true,
                 "python.testing.pytestEnabled": true,
                 "python.testing.unittestEnabled": false,
-                "_editor.defaultFormatter": "ms-python.autopep8",
-                "__editor.defaultFormatter": "ms-python.black-formatter",
                 "editor.defaultFormatter": "eeyore.yapf",
                 "git.preCommitEnabled": false,
                 "debug.internalConsoleOptions": "neverOpen",
@@ -77,10 +75,7 @@
     },
     "remoteEnv": {
         "SF_AUTH_SOCKET_ADDR": "localhost", //fix snowflake externalbrowser loopback address
-        "SF_AUTH_SOCKET_REUSEPORT": "true", //try to reuse port
-        "AZURE_TENANT": "84e25fff-8a01-49fa-9024-ac157f75279d",
-        "AZURE_SUBSCRIPTION": "3bb86f05-349c-482a-9298-50ac194eb71c",
-        "AZURE_KEYVAULT": "akv-meetup-ggdp-frc"
+        "SF_AUTH_SOCKET_REUSEPORT": "true" //try to reuse port
 	},
     "remoteUser": "vscode",
     "postCreateCommand": "sudo chmod +x $WORKSPACE_PATH/.devcontainer/install.sh && $WORKSPACE_PATH/.devcontainer/install.sh"

@@ -10,7 +10,7 @@ WORKDIR $WORKSPACE_FOLDER
 # Define en variables
 # -----------------------------------------------------------------------------
 ENV WORKSPACE_PATH=$WORKSPACE_FOLDER
-ENV PYTHONPATH="${PYTHONPATH}:$WORKSPACE_PATH:$WORKSPACE_PATH/snowpark:$WORKSPACE_PATH/streamlit_app/modules"
+ENV PYTHONPATH="${PYTHONPATH}:$WORKSPACE_PATH/src"
 # Prevent interactive popups when initializing debian.
 ENV DEBIAN_FRONTEND=noninteractive
 # Preparing vars to install the SnowSQL CLI for the vscode user
@@ -37,11 +37,11 @@ RUN mkdir -p /home/${USERNAME}/.snowsql \
     && chmod -R 700 /home/${USERNAME}/.snowsql
 
 # -----------------------------------------------------------------------------
-# Install python requirements
+# Install Uv and python requirements
 # -----------------------------------------------------------------------------
 COPY /.devcontainer/requirements*.txt $TMP_CONFIG_CONTAINER/.
-RUN pip install --upgrade pip
-RUN pip install -r $TMP_CONFIG_CONTAINER/requirements.txt -r $TMP_CONFIG_CONTAINER/requirements-dev.txt
+RUN pip install uv
+RUN uv pip install --system -r $TMP_CONFIG_CONTAINER/requirements.txt -r $TMP_CONFIG_CONTAINER/requirements-dev.txt
 
 # -----------------------------------------------------------------------------
 # Persist bash history between sessions
