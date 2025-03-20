@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 from snowflake.snowpark.session import Session
-from dcube.snowflake.mesh.mesh_manager import MeshManager
+from dcube.snowflake.mesh.mesh_contract import MeshContract
 from dcube.snowflake.mesh.query_plan import QueryPlan
 
 # Configure the logger
@@ -16,17 +16,17 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 # Get or create snowpark session
 session: Session = Session.builder.getOrCreate()
 
+
 def main():
     # get the directory of the current script
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     # create a MeshManager object
-    mesh_mngr: MeshManager = MeshManager(
-        mesh_contract_filepath=os.path.join(script_dir, "mesh_contract.yml")
-    )
+    mesh_ctrt: MeshContract = MeshContract(
+        mesh_contract_filepath=os.path.join(script_dir, "mesh_contract.yml"))
 
     # generate sql statements from the MeshManager object
-    qp: QueryPlan = mesh_mngr.plan()
+    qp: QueryPlan = mesh_ctrt.plan()
     qp.save_to_file(os.path.join(script_dir, "target", "compiled.sql"))
     qp.apply()
 

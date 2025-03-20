@@ -4,7 +4,6 @@ import logging
 import os
 import time
 import concurrent.futures
-from typing import Any
 from snowflake.snowpark.session import Session
 from snowflake.snowpark.async_job import AsyncJob
 
@@ -14,182 +13,165 @@ log = logging.getLogger(__name__)
 session: Session = Session.builder.getOrCreate()
 
 
-class QueryPlanBlock():
+class QueryPlanBlock:
     """
-    A query plan block is a list of sql statement that can be run
-    in parallel or sequential
+    A query plan block is a list of SQL statements that can be run
+    in parallel or sequentially.
     """
 
-    def __init__(self) -> None:
-        self._block: dict[str, bool | list[str]] = dict()
+    def __init__(self,
+                 name: str,
+                 role_to_use: str,
+                 parallel_mode: bool,
+                 sql_statements: list[str] = []) -> None:
+        self._name = name
+        self._role_to_use = role_to_use
+        self._parallel_mode = parallel_mode
+        self._sql_statements = sql_statements
 
-    def set_block(self, parallel_mode: bool,
-                  sql_statements: list[str]) -> None:
-        """
-        set blobk of sql statment to execute
-        """
-        self._block = {
-            "parallel_mode": parallel_mode,
-            "sql_statements": sql_statements
-        }
+    def add_sql_statement(self, sql: str) -> None:
+        """Add a SQL statement to the block."""
+        self._sql_statements.append(sql)
+
+    def get_name(self) -> str:
+        """Get the name of the block."""
+        return self._name
+
+    def get_role_to_use(self) -> str:
+        """Get the role to use to execute the SQL statements."""
+        return self._role_to_use
 
     def get_parallel_mode(self) -> bool:
-        """
-        check is sql statements in block must run in parallel
-        """
-        return bool(self._block.get("parallel_mode", False))
+        """Check if SQL statements in the block must run in parallel."""
+        return self._parallel_mode
 
     def get_sql_statements(self) -> list[str]:
-        """
-        get the sql statement contained in a block
-        """
-        value: Any = self._block.get("sql_statements", [])
-        sql_statements: list[str] = (value if isinstance(value, list) and all(
-            isinstance(item, str) for item in value) else [])
-        return sql_statements
+        """Get the SQL statements contained in the block."""
+        return self._sql_statements
 
 
-class QueryPlan():
+class QueryPlan:
     """
-    The class QueryPlan is a list of QueryPlanBlock
+    The class QueryPlan is a list of QueryPlanBlock.
     """
 
     def __init__(self) -> None:
-        self._blocks: list[QueryPlanBlock] = list()
+        self._blocks: list[QueryPlanBlock] = []
 
     def get_blocks(self) -> list[QueryPlanBlock]:
-        """
-        Returns the list of QueryPlanBlock
-        """
+        """Return the list of QueryPlanBlock."""
         return self._blocks
 
     def add_block(self, block: QueryPlanBlock) -> None:
         """
-        Add a QueryPlanBlock
+        Add a QueryPlanBlock.
         Args:
         - block: a QueryPlanBlock object
         """
-        if block:
-            self._blocks.append(block)
+        self._blocks.append(block)
 
     def add_blocks(self, blocks: list[QueryPlanBlock]) -> None:
         """
-        Add a QueryPlanBlock
+        Add multiple QueryPlanBlock objects.
         Args:
-        - block: a QueryPlanBlock object
+        - blocks: a list of QueryPlanBlock objects
         """
-        if blocks:
-            self._blocks += blocks
+        self._blocks.extend(blocks)
+
+    def add_block_sql_statement(self, block_name: str, sql: str) -> None:
+        """
+        Add a SQL statement to a block.
+        Args:
+        - block_name: the name of the block to add the SQL statement
+        - sql: the SQL statement to add
+        """
+        for block in self._blocks:
+            if block.get_name() == block_name:
+                block.add_sql_statement(sql)
+                break
 
     def apply(self) -> None:
         """
-        Read the query plan and execute all sql statements
-        Args:
-        - session: the snowpark session to use
+        Read the query plan and execute all SQL statements.
         """
 
         def job_run_nowait(stmt: str) -> AsyncJob:
             """
-            use to run the collect_nowait in parallel
-            Args
+            Use to run the collect_nowait in parallel.
+            Args:
             - stmt: the query to execute
-            Returns
+            Returns:
             - AsyncJob
             """
             return session.sql(stmt).collect_nowait()  # type: ignore
 
         def job_is_done(job: AsyncJob) -> AsyncJob | None:
             """
-            use to check if an async job is finished
-            Args
+            Use to check if an async job is finished.
+            Args:
             - job: the AsyncJob to check
-            Returns
-            - AsyncJob if is done otherwise None
+            Returns:
+            - AsyncJob if done, otherwise None
             """
-            if job.is_done():
-                return job
-            return None
+            return job if job.is_done() else None
 
-        # loop over sql statements blocks
-        for _, block in enumerate(self._blocks):
+        # Loop over SQL statement blocks
+        for block in self._blocks:
+            async_job_lst: list[AsyncJob] = []
 
-            # when parallel_mode is set to true
-            async_job_lst: list[AsyncJob] = list()
             if block.get_parallel_mode():
                 with concurrent.futures.ThreadPoolExecutor() as executor:
-                    # execute the collect_nowait in parallel
                     futures = [
                         executor.submit(job_run_nowait, stmt)
                         for stmt in block.get_sql_statements()
                     ]
-
-                    # list all the async jobs executing in parallel
                     for future in concurrent.futures.as_completed(futures):
                         try:
                             async_job_lst.append(future.result())
                         except Exception as e:
-                            log.error("An unattended error occured: %s" % e)
+                            log.error("An unattended error occurred: %s", e)
             else:
-                # otherwise run the statement serially
                 for stmt in block.get_sql_statements():
-                    _ = session.sql(stmt).collect()
+                    session.sql(stmt).collect()
 
-            # waiting for asynchronous jobs to finsh executing
-            if len(async_job_lst) > 0:
-                # prepare parallel execution to check job status massively
+            if async_job_lst:
                 with concurrent.futures.ThreadPoolExecutor() as executor:
-                    while len(async_job_lst) > 0:
-                        log.info(
-                            "waiting for %s async jobs",
-                            len(async_job_lst))
-
-                        # check the job status of async jobs in parallel
+                    while async_job_lst:
+                        log.info("Waiting for %s async jobs",
+                                 len(async_job_lst))
                         futures = [
-                            executor.submit(
-                                job_is_done,  # type: ignore[arg-type]
-                                job) for job in async_job_lst
+                            executor.submit(job_is_done, job)  # type: ignore
+                            for job in async_job_lst
                         ]
-
-                        # get all the job_is_done results
-                        completed_jobs: list[AsyncJob] = list()
-                        for future in concurrent.futures.as_completed(futures):
-                            result = future.result()
-                            if result is not None:
-                                completed_jobs.append(result)
-
-                        # Remove completed jobs from the list
-                        for job in completed_jobs:
-                            async_job_lst.remove(job)
-
-                        # if there are running any jobs still runnning
-                        # wait 300 ms before recheck the jobs status
-                        if len(async_job_lst) > 0:
+                        completed_jobs = [
+                            future.result() for future in
+                            concurrent.futures.as_completed(futures)
+                            if future.result()
+                        ]
+                        async_job_lst = [
+                            job for job in async_job_lst
+                            if job not in completed_jobs
+                        ]
+                        if async_job_lst:
                             time.sleep(0.3)
 
     def save_to_file(self, file_path: str) -> None:
         """
-        Save the query plan to text file
+        Save the query plan to a text file.
         Args:
         - file_path: file and path where to save the query plan as text
         """
-        # Ensure the directory exists
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
-        # open the file
         with open(file_path, "w", encoding="utf8") as file:
-            # loop over the query blocks
             for qpb in self._blocks:
-                file.write("select 'start block';\n")
-                # if statements' block have to be run in parallel
+                file.write(f"select 'start block {qpb.get_name()}';\n")
+                if qpb.get_role_to_use():
+                    file.write(f"use role {qpb.get_role_to_use()};\n")
                 if qpb.get_parallel_mode():
                     file.write("select 'start parallel block';\n")
-                # lopp over the statements' block
                 for sql in qpb.get_sql_statements():
                     file.write(f"{sql};\n")
-                # if statements' block have to be run in parallel
                 if qpb.get_parallel_mode():
                     file.write("select 'end parallel block';\n")
-                file.write("select 'end block';\n")
-
-            # close the file
-            file.close()
+                file.write(f"select 'end block {qpb.get_name()}';\n")

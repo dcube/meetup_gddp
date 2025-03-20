@@ -8,10 +8,6 @@
           "version": { "type": "string" },
           "kind": { "type": "string" },
           "provider": { "type": "string", "enum": ["snowflake"] },
-          "mesh_admin_users": {
-            "type": "array",
-            "items": { "type": "string" }
-          },
           "domains": {
             "type": "array",
             "items": {
@@ -110,7 +106,7 @@
             }
           }
         },
-        "required": ["version", "kind", "provider", "mesh_admin_users", "domains", "domain_multiples", "warehouses", "managed_db_role_schema_objects", "database_roles"]
+        "required": ["version", "kind", "provider", "domains", "domain_multiples", "warehouses", "managed_db_role_schema_objects", "database_roles"]
       }
     },
     "required": ["data_contract"]

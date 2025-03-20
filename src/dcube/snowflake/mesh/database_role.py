@@ -1,34 +1,59 @@
 """..."""
-from typing import Any
 from dcube.snowflake.mesh.base_object import BaseObject
-from dcube.snowflake.mesh.schema_object_privileges import SchemaObjectPrivileges
+from dcube.snowflake.mesh.database_role_object_privileges import DatabaseRoleObjectPrivileges as ObjectPrivileges
+from dcube.snowflake.mesh.privilege_enum import PrivilegeAction, PrivilegeOption
+
 
 class DatabaseRole(BaseObject):
     """
-    A database role
+    A database role.
     """
 
-    def __init__(self, data: dict[str, Any]) -> None:
-        super().__init__(
-            name=data.get("name", ""),
-            comment=data.get("comment", "")
-        )
-        self._schema_privileges: list[str] = data.get("schema_privileges", [])
-        sop = data.get("schema_objects_privileges")
-        if sop is not None:
-            self._schema_objects_privileges: list[SchemaObjectPrivileges] = [
-                SchemaObjectPrivileges(name=str(k), privileges=v)
-                for k, v in sop.items()
-            ]
+    def __init__(self, name: str, comment: str,
+                 objects_privileges: list[ObjectPrivileges]) -> None:
+        super().__init__(name=name, comment=comment)
+        self._objects_privileges = objects_privileges
 
-    def get_schema_privileges(self) -> list[str]:
+    def get_objects_privileges(self) -> list[ObjectPrivileges]:
         """
-        Get the list of schema privileges
+        Get the list of objects' privileges.
         """
-        return self._schema_privileges
+        return self._objects_privileges
 
-    def get_schema_objects_privileges(self) -> list[SchemaObjectPrivileges]:
+    def plan_create_or_alter(self, database_name: str) -> str:
         """
-        Get the list of schema objects' privileges
+        Plan the create or alter statement for the database role.
         """
-        return self._schema_objects_privileges
+        sql = "create or alter database role %s.%s comment = '%s'" % (
+            database_name, self._name, self._comment.replace("'", "''"))
+        return sql
+
+    def plan_grant_to_domain_admin(self, database_name: str,
+                                   domain: str) -> str:
+        sql = "grant database role %s.%s to role %s_admin" % (
+            database_name, self._name, domain)
+        return sql
+
+    def plan_objects_privileges(self, action: PrivilegeAction,
+                                database_name: str) -> list[str]:
+        """
+        Generate the sql statements to grant or revoke privileges
+        """
+        option = PrivilegeOption.EMPTY
+        if action == PrivilegeAction.REVOKE:
+            option = PrivilegeOption.CASCADE
+        elif action == PrivilegeAction.GRANT and self._name == "admin":
+            option = PrivilegeOption.COPY
+
+        # Generate the sql statements to grant or revoke privileges
+        sqls: list[str] = []
+        for object_privileges in self.get_objects_privileges():
+            for scope in ["future", "all"]:
+                sql = object_privileges.plan_privileges(
+                    action=action,
+                    database_name=database_name,
+                    role_name=self._name,
+                    option=option,
+                    object_type_scope=scope)
+                sqls.append(sql) if sql else None
+        return sqls
